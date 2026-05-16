@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Coach Assistant | كوتش الجيم الذكي 🦍</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --card-bg: rgba(28, 28, 36, 0.9); --primary: #ff5722; 
+            --text-light: #ffffff; --text-muted: #a0a0a5; --success: #4caf50;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        
+        html, body { overflow-x: hidden; width: 100vw; background: #0f0f13; }
+        body { 
+            color: var(--text-light); display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 15px 10px 40px; 
+            background: linear-gradient(-45deg, #0f0f13, #2a0800, #1c1c24, #1a0b0b);
+            background-size: 400% 400%; animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .main-card { background-color: var(--card-bg); max-width: 500px; border-radius: 20px; padding: 25px 15px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.7); width: 100%; border: 1px solid rgba(255, 255, 255, 0.05);}
+        .category-title { color: #ffeb3b; font-size: 18px; font-weight: 700; margin-bottom: 5px; }
+        .exercise-title { font-size: 28px; font-weight: 900; margin-bottom: 20px; color: #fff;}
+        
+        .time-header { background: rgba(0,0,0,0.6); border: 1px solid var(--primary); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 15px; display: inline-flex; gap: 10px; align-items: center; }
+        .time-header span { color: var(--primary); font-size: 16px;}
+
+        .progress-wrapper { width: 100%; max-width: 500px; margin-bottom: 20px; }
+        .progress-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: var(--text-muted); margin-bottom: 8px; padding: 0 5px;}
+        .progress-container { width: 100%; background: #333; border-radius: 10px; height: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #ff5722, #ff9800); width: 0%; transition: width 0.6s ease; }
+        
+        .exercise-info { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .badge { padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: bold; border: 1px solid #444; background: rgba(0,0,0,0.4); }
+        .badge-target { color: var(--primary); border-color: var(--primary); }
+
+        .timer-wrapper { position: relative; width: 150px; height: 150px; margin: 0 auto 15px; display: none; }
+        .timer-circle { width: 100%; height: 100%; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; }
+        .timer-inner { width: 130px; height: 130px; background: var(--card-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; color: var(--primary); cursor: pointer; user-select: none; }
+        
+        .tease-text { color: #00bcd4; font-size: 22px; font-weight: 900; margin: 20px 0; display: none; animation: popIn 0.5s, pulseText 1.5s infinite alternate; }
+        .motivation-text { color: #ffeb3b; font-size: 18px; font-weight: 900; margin-bottom: 20px; display: none;}
+        @keyframes pulseText { from { transform: scale(1); opacity: 0.9;} to { transform: scale(1.05); opacity: 1;} }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .input-section { display: none; margin-bottom: 15px; animation: slideUp 0.4s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
+        .input-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
+        .input-group { display: flex; flex-direction: column; width: 48%; }
+        .input-group label { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; font-weight: bold;}
+        .input-group input { background: rgba(0,0,0,0.5); border: 2px solid #555; border-radius: 12px; color: #fff; padding: 12px; font-size: 20px; font-weight: 900; text-align: center; outline: none; }
+
+        .action-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        .btn-primary { background: linear-gradient(45deg, var(--primary), #ff9800); color: #fff; }
+        .btn-success { background: linear-gradient(45deg, #2e7d32, #4caf50); color: #fff; }
+        .btn-play { background: linear-gradient(45deg, #00bcd4, #0288d1); color: #fff; }
+        .btn-secondary { background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid #555; }
+        .btn-dash { background: linear-gradient(45deg, #673ab7, #9c27b0); color: #fff; border: 1px solid #e1bee7;}
+        .btn-select { background: rgba(0,0,0,0.5); color: #ffeb3b; border: 1px dashed #ffeb3b; margin-top: 5px; }
+
+        .welcome-screen { text-align: center; width: 100%; max-width: 500px; animation: fadeIn 0.6s ease; }
+        .welcome-box { background: var(--card-bg); padding: 25px 15px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);}
+        
+        .dashboard-screen { display: none; width: 100%; max-width: 500px; animation: slideUp 0.5s ease; }
+        .stats-cards { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .stat-card { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; padding: 15px; width: 48%; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);}
+        .stat-card h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
+        .stat-card span { font-size: 24px; font-weight: bold; color: #ffeb3b; text-shadow: 0 0 10px rgba(255,235,59,0.4);}
+        
+        .dash-category-box { background: rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; overflow: hidden;}
+        .dash-cat-header { background: rgba(255, 87, 34, 0.1); color: var(--primary); padding: 10px; font-weight: bold; font-size: 15px; border-bottom: 1px solid #333; text-align: right;}
+        .dash-item { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #222; font-size: 13px;}
+        
+        /* 📈 قسم الرسم البياني 📈 */
+        .chart-container { background: rgba(0,0,0,0.5); border-radius: 15px; padding: 15px; margin: 15px 0; border: 1px solid #444; height: 300px; width: 100%; }
+
+        .select-list { display: none; flex-direction: column; gap: 10px; margin-top: 20px; }
+        
+        .rating-box { background: rgba(76, 175, 80, 0.1); border: 1px solid var(--success); border-radius: 15px; padding: 15px; margin: 20px 0; }
+        .rating-score { font-size: 35px; font-weight: 900; color: var(--success); text-shadow: 0 0 15px rgba(76, 175, 80, 0.5); }
+        .trend-up { color: #4caf50; font-weight: bold; }
+        .trend-flat { color: #ffeb3b; font-weight: bold; }
+        
+        .reset-btn { background: transparent; border: none; color: #a0a0a5; text-decoration: underline; font-size: 12px; cursor: pointer; margin-bottom: 15px; }
+        .hide { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="loading" style="text-align:center; margin-top:30vh;">
+        <h2 style="font-size: 24px;">بيسخن الكابتن... ⏳🏋️‍♂️</h2>
+    </div>
+
+    <div id="welcome-screen" class="welcome-screen" style="display: none;">
+        <div class="welcome-box">
+            <h2 style="margin-bottom: 20px; font-weight: 900; font-size: 26px;">يا هلا بالوحش! 🦍🔥</h2>
+            
+            <button class="action-btn btn-dash" onclick="openDashboard()">📊 لوحة الإحصائيات الشاملة</button>
+            <hr style="border:0; border-top:1px dashed #444; margin: 20px 0;">
+
+            <p style="color: var(--text-muted); margin-bottom: 10px; font-size: 14px;">التمرينة المقترحة ليك النهاردة:</p>
+            <div class="badge" style="color: #ffeb3b; border-color: #ffeb3b; font-size: 22px; margin-bottom: 25px; background: rgba(255,235,59,0.1);" id="lbl-suggested-workout">--</div>
+            
+            <button class="action-btn btn-success" onclick="confirmWorkout(activeCategory)">جاهز، يلا بينا نفورم! 🚀</button>
+            <button class="action-btn btn-secondary" onclick="toggleSelectionList()">لا، هلعب عضلة تانية النهاردة 🔄</button>
+            
+            <div id="select-list" class="select-list"></div>
+        </div>
+    </div>
+
+    <div id="dashboard-screen" class="dashboard-screen">
+        <div class="main-card" style="padding-top: 15px;">
+            <h2 style="color: #fff; margin-bottom: 20px;">لوحة الأبطال 🏆</h2>
+            
+            <div class="stats-cards">
+                <div class="stat-card"><h4>تمرين الشهر ده</h4><span id="stat-month">0</span> 📅</div>
+                <div class="stat-card"><h4>تمرين السنة دي</h4><span id="stat-year">0</span> 🥇</div>
+            </div>
+
+            <h3 style="color: #00bcd4; font-size: 16px; margin: 20px 0 10px; text-align: right;">📈 التطور الزمني لأوزانك الأساسية:</h3>
+            <div class="chart-container">
+                <canvas id="progressChart"></canvas>
+            </div>
+
+            <h3 style="color: var(--primary); font-size: 16px; margin: 20px 0 10px; text-align: right;">🏋️ أوزانك الحالية في كل العضلات:</h3>
+            <div id="dashboard-full-stats" style="max-height: 40vh; overflow-y: auto; padding-right: 5px;"></div>
+
+            <button class="action-btn btn-secondary" style="margin-top: 20px;" onclick="closeDashboard()">⬅️ رجوع للصفحة الرئيسية</button>
+        </div>
+    </div>
+
+    <div id="app-content" style="display: none; width: 100%; flex-direction: column; align-items: center;">
+        <button class="reset-btn" onclick="resetWorkoutSession()">🔄 متلخبط؟ الغي التمرينة وابدأ من الصفر</button>
+        <div class="time-header">⏳ متبقي للجيم: <span id="time-left">--</span> دقيقة</div>
+        
+        <div class="progress-wrapper">
+            <div class="progress-header">
+                <span>رحلة النهاردة 🛤️</span>
+                <span>خلصنا <span class="highlight" id="current-index">1</span> من <span class="highlight" id="total-exercises">5</span> تمارين</span>
+            </div>
+            <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
+        </div>
+
+        <div class="main-card" id="workout-card">
+            <div class="category-title" id="exercise-category">--</div>
+            <h1 id="exercise-title" class="exercise-title">اسم التمرين</h1>
+            
+            <div class="exercise-info">
+                <span class="badge" style="color: #00bcd4; border-color: #00bcd4;">مجموعة: <span id="current-set">1</span> / <span id="max-sets">3</span> 🔄</span>
+                <span class="badge badge-target">تارجت: <span id="target-reps">10</span> عدات 🎯</span>
+            </div>
+
+            <button id="main-btn" class="action-btn btn-primary" onclick="startSetPlaying()">ابدأ المجموعة 💪</button>
+            <div id="tease-text" class="tease-text"></div>
+
+            <div id="input-section" class="input-section">
+                <h3 style="color: #fff; margin-bottom: 15px; font-size: 16px;">عاش! جبت كام عدة وشيلت كام؟</h3>
+                <div class="input-row">
+                    <div class="input-group"><label>الوزن (كجم) 🏋️</label><input type="number" id="weight-input"></div>
+                    <div class="input-group"><label>العدات 🔢</label><input type="number" id="reps-input"></div>
+                </div>
+                <button id="log-set-btn" class="action-btn btn-success" onclick="confirmSetAndRest()">تأكيد وابدأ الراحة ⏱️✅</button>
+                <button id="extra-set-btn" class="action-btn btn-select" onclick="addExtraSet()">لسه فيا حيل! زود مجموعة ➕💪</button>
+            </div>
+
+            <div id="timer-wrapper" class="timer-wrapper">
+                <div id="timer-circle" class="timer-circle"><div id="timer-inner" class="timer-inner" onclick="skipTimer()">60</div></div>
+            </div>
+            <div id="motivation-text" class="motivation-text"></div>
+        </div>
+
+        <div class="main-card hide" id="summary-card" style="animation: slideUp 0.5s ease;">
+            <h1 style="color: var(--success); font-size: 35px; text-shadow: 0 0 15px rgba(76,175,80,0.5);">تم يا وحش! 🏆</h1>
+            <div class="rating-box">
+                <h3 style="color: #fff; margin-bottom: 5px;">تقييم أداءك النهاردة</h3>
+                <div class="rating-score" id="final-rating">10/10</div>
+                <p style="color: var(--text-muted); font-size: 14px;" id="rating-msg">عاش يا بطل، كسرت أرقامك!</p>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin: 15px 0; text-align: right; border: 1px solid #333;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary); margin-bottom: 10px; text-align: center; border-bottom: 1px dashed #555; padding-bottom: 10px;">
+                    📈 مقارنة التمرينة (المرة اللي فاتت ⬅️ النهاردة)
+                </div>
+                <div id="summary-stats"></div>
+            </div>
+            <button class="action-btn btn-primary" onclick="location.reload()">ممتاز، نتقابل التمرينة الجاية 👋</button>
+        </div>
+    </div>
+
+    <script>
+        // ============== 🔴 ضع رابط الـ Web App الخاص بك هنا 🔴 ==============
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzedIIPIAMVs9iRafPv6Q7JAaWsd8fGaAs1SDVMWlhMFw-Lj3fvZoZRXJ18LahySyNn/exec"; 
+        // ======================================================================
+
+        const motivations = ["شايفك 👀.. دغدغ الحديد 💥", "عاش يا دبابة! 🦍", "هات آخرك، الوجع ده هو النتيجة 💯"];
+        
+        let backendData = {}; let exercises = [];
+        let currentIndex = 0; let currentSet = 1; let currentExerciseData = { weights: [], reps: [] };
+        let totalWorkoutSets = 0; let completedWorkoutSets = 0; let countdown; let timeLeft = 60;
+        let activeCategory = ""; let sessionSummary = []; 
+        let audioCtx; let naggingInterval; let progressChartInstance = null; // Chart Instance
+
+        const getTodayDate = () => {
+            const today = new Date(); const offset = today.getTimezoneOffset();
+            return new Date(today.getTime() - (offset*60*1000)).toISOString().split('T')[0];
+        };
+
+        function initAudio() {
+            if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+        }
+
+        function playBeep(times, duration = 300, interval = 500) {
+            if (!audioCtx) return; let i = 0;
+            let play = () => {
+                let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.type = "sine"; osc.frequency.value = 850; osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration/1000);
+                setTimeout(() => osc.stop(), duration);
+                i++; if (i < times) setTimeout(play, interval);
+            }; play();
+        }
+
+        function saveLocalState() {
+            if (!activeCategory) return;
+            localStorage.setItem('gymPartnerState', JSON.stringify({
+                date: getTodayDate(), activeCategory: activeCategory, exercises: exercises,
+                currentIndex: currentIndex, currentSet: currentSet, currentExerciseData: currentExerciseData,
+                completedWorkoutSets: completedWorkoutSets, totalWorkoutSets: totalWorkoutSets, sessionSummary: sessionSummary
+            }));
+        }
+        function clearLocalState() { localStorage.removeItem('gymPartnerState'); }
+        function resetWorkoutSession() { if(confirm("متأكد هتلغي التمرينة؟")) { clearLocalState(); location.reload(); } }
+
+        window.onload = async () => {
+            try {
+                const savedStateStr = localStorage.getItem('gymPartnerState');
+                let hasSavedState = false;
+
+                if (savedStateStr) {
+                    const savedState = JSON.parse(savedStateStr);
+                    if (savedState.date === getTodayDate()) {
+                        hasSavedState = true;
+                        activeCategory = savedState.activeCategory; exercises = savedState.exercises;
+                        currentIndex = savedState.currentIndex; currentSet = savedState.currentSet;
+                        currentExerciseData = savedState.currentExerciseData; completedWorkoutSets = savedState.completedWorkoutSets; 
+                        totalWorkoutSets = savedState.totalWorkoutSets; sessionSummary = savedState.sessionSummary || [];
+                        
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('app-content').style.display = 'flex';
+                        updateRemainingTime(); renderExercise();
+                    } else { clearLocalState(); }
+                }
+
+                const response = await fetch(WEB_APP_URL);
+                backendData = await response.json();
+                
+                if (!hasSavedState) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('welcome-screen').style.display = 'block';
+                    
+                    document.getElementById('stat-month').innerText = backendData.stats.month;
+                    document.getElementById('stat-year').innerText = backendData.stats.year;
+
+                    activeCategory = backendData.suggestedCategory;
+                    document.getElementById('lbl-suggested-workout').innerText = "💪 " + activeCategory;
+                    
+                    buildFullDashboard(); 
+                    
+                    const listContainer = document.getElementById('select-list');
+                    backendData.rotation.forEach(cat => {
+                        let btn = document.createElement('button');
+                        btn.className = "action-btn btn-select"; btn.innerText = cat + " 🏋️‍♂️";
+                        btn.onclick = () => {
+                            activeCategory = cat; document.getElementById('lbl-suggested-workout').innerText = "💪 " + cat; toggleSelectionList();
+                        };
+                        listContainer.appendChild(btn);
+                    });
+                }
+            } catch (error) { document.getElementById('loading').innerHTML = "<h2 style='color:#ff5722;'>النت فصل يا وحش ❌</h2>"; }
+        };
+
+        // 📈 دالة رسم الـ Chart.js
+        function renderProgressChart() {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            const hData = backendData.historyData;
+            if(!hData || Object.keys(hData).length === 0) return;
+
+            // تجميع التواريخ وترتيبها
+            let allDates = new Set();
+            for(let ex in hData) { hData[ex].forEach(d => allDates.add(d.date)); }
+            let sortedDates = Array.from(allDates).sort((a,b) => new Date(a) - new Date(b));
+
+            const colors = ['#ff5722', '#00bcd4', '#4caf50', '#ffeb3b', '#9c27b0'];
+            let datasets = []; let colorIndex = 0;
+
+            for(let ex in hData) {
+                if(hData[ex].length === 0) continue;
+          
