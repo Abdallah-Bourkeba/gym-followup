@@ -9,7 +9,6 @@
   <style>
     :root {
       --card-bg: rgba(28, 28, 36, 0.85);
-      /* شفافية بسيطة عشان الأنيميشن يبان */
       --primary: #ff5722;
       --primary-hover: #e64a19;
       --text-light: #ffffff;
@@ -24,7 +23,6 @@
       font-family: 'Cairo', sans-serif;
     }
 
-    /* 🌌 أنيميشن الخلفية الفخم 🌌 */
     body {
       color: var(--text-light);
       display: flex;
@@ -63,7 +61,6 @@
       border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* ترتيب العناوين الجديد */
     .category-title {
       color: #ffeb3b;
       font-size: 20px;
@@ -88,7 +85,7 @@
       border-radius: 20px;
       font-size: 15px;
       font-weight: bold;
-      margin-bottom: 25px;
+      margin-bottom: 15px;
       display: inline-flex;
       gap: 10px;
       align-items: center;
@@ -100,7 +97,6 @@
       font-size: 18px;
     }
 
-    /* شكل التقدم الجديد (Bar + Text) */
     .progress-wrapper {
       width: 100%;
       max-width: 500px;
@@ -369,6 +365,21 @@
       margin-top: 20px;
     }
 
+    .reset-btn {
+      background: transparent;
+      border: none;
+      color: #a0a0a5;
+      text-decoration: underline;
+      font-size: 12px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      transition: 0.3s;
+    }
+
+    .reset-btn:hover {
+      color: #ff5722;
+    }
+
     .hide {
       display: none !important;
     }
@@ -405,6 +416,8 @@
   </div>
 
   <div id="app-content" class="hide" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+
+    <button class="reset-btn" onclick="resetWorkoutSession()">🔄 متلخبط؟ الغي التمرينة وابدأ من الصفر</button>
 
     <div class="time-header">⏳ متبقي للجيم كله: <span id="time-left">--</span> دقيقة</div>
 
@@ -460,17 +473,11 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzapBcArwxaeyehP0g_30ZzmPZCE64traT4r9SAtaGM62AtgYmgPN4tBV38uSupDuPf/exec";
     // ======================================================================
 
-    // ترسانة تحفيز مصرية صميمة للجيم
     const motivations = [
-      "دغدغ الحديد ومترحمش 💥",
-      "عاش يا دبابة! 🦍",
-      "مفيش راحة.. الفورمة بتنادي 🔥",
-      "العب بتركيز، العضلة بتكبر دلوقتي 🚀",
-      "هات آخرك، الوجع ده هو النتيجة 💯",
-      "الحديد مابيرحمش، بس أنت أقوى 🦾",
-      "كمان عدة يا وحش.. تقدر! 🏋️‍♂️",
-      "فورمة الساحل بتتبني في الشتا 🌊",
-      "عاش يا فورمة! استرجل وخد نفسك 😤"
+      "دغدغ الحديد ومترحمش 💥", "عاش يا دبابة! 🦍", "مفيش راحة.. الفورمة بتنادي 🔥",
+      "العب بتركيز، العضلة بتكبر دلوقتي 🚀", "هات آخرك، الوجع ده هو النتيجة 💯",
+      "الحديد مابيرحمش، بس أنت أقوى 🦾", "كمان عدة يا وحش.. تقدر! 🏋️‍♂️",
+      "فورمة الساحل بتتبني في الشتا 🌊", "عاش يا فورمة! استرجل وخد نفسك 😤"
     ];
 
     let backendData = {};
@@ -484,25 +491,105 @@
     let timeLeft = 60;
     let activeCategory = "";
 
+    // متغيرات الصوت والمتابعة الزنانة
+    let audioCtx;
+    let nagInterval;
+
+    const getTodayDate = () => {
+      const today = new Date();
+      const offset = today.getTimezoneOffset();
+      return new Date(today.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
+    };
+
+    // 🔊 تهيئة نظام الصوت (بيشتغل لما تدوس أي زرار لأول مرة)
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // 🔊 دالة تشغيل التنبيه المتقطع (Beep)
+    function playBeep(times, duration = 300, interval = 500) {
+      if (!audioCtx) return;
+      let i = 0;
+      let play = () => {
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = "sine";
+        osc.frequency.value = 850; // تردد عالي عشان يصطاد ودنك
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration / 1000);
+        setTimeout(() => osc.stop(), duration);
+
+        i++;
+        if (i < times) setTimeout(play, interval);
+      };
+      play();
+    }
+
+    // 🟢 نظام الحفظ التلقائي في الموبايل
+    function saveLocalState() {
+      if (!activeCategory) return;
+      const state = {
+        date: getTodayDate(), activeCategory: activeCategory, exercises: exercises,
+        currentIndex: currentIndex, currentSet: currentSet, currentExerciseData: currentExerciseData,
+        completedWorkoutSets: completedWorkoutSets, totalWorkoutSets: totalWorkoutSets
+      };
+      localStorage.setItem('gymPartnerState', JSON.stringify(state));
+    }
+
+    function clearLocalState() { localStorage.removeItem('gymPartnerState'); }
+
+    function resetWorkoutSession() {
+      if (confirm("متأكد إنك عايز تلغي التمرينة دي وتبدأ من الصفر؟ أي أرقام مسجلتهاش هتروح!")) {
+        clearLocalState(); location.reload();
+      }
+    }
+
     window.onload = async () => {
       try {
+        const savedStateStr = localStorage.getItem('gymPartnerState');
+        let hasSavedState = false;
+
+        if (savedStateStr) {
+          const savedState = JSON.parse(savedStateStr);
+          if (savedState.date === getTodayDate()) {
+            hasSavedState = true;
+            activeCategory = savedState.activeCategory; exercises = savedState.exercises;
+            currentIndex = savedState.currentIndex; currentSet = savedState.currentSet;
+            currentExerciseData = savedState.currentExerciseData;
+            completedWorkoutSets = savedState.completedWorkoutSets; totalWorkoutSets = savedState.totalWorkoutSets;
+
+            document.getElementById('loading').classList.add('hide');
+            document.getElementById('app-content').classList.remove('hide');
+            document.getElementById('total-exercises').innerText = exercises.length;
+            updateRemainingTime(); renderExercise();
+          } else { clearLocalState(); }
+        }
+
         const response = await fetch(WEB_APP_URL);
         backendData = await response.json();
 
-        document.getElementById('loading').classList.add('hide');
-        document.getElementById('welcome-screen').style.display = 'block';
+        if (!hasSavedState) {
+          document.getElementById('loading').classList.add('hide');
+          document.getElementById('welcome-screen').style.display = 'block';
+          document.getElementById('lbl-last-workout').innerText = "👈 " + backendData.lastCategory;
+          document.getElementById('lbl-suggested-workout').innerText = "💪 " + backendData.suggestedCategory;
 
-        document.getElementById('lbl-last-workout').innerText = "👈 " + backendData.lastCategory;
-        document.getElementById('lbl-suggested-workout').innerText = "💪 " + backendData.suggestedCategory;
-
-        const listContainer = document.getElementById('select-list');
-        backendData.rotation.forEach(cat => {
-          let btn = document.createElement('button');
-          btn.className = "action-btn btn-select";
-          btn.innerText = cat + " 🏋️‍♂️";
-          btn.onclick = () => confirmWorkout(cat);
-          listContainer.appendChild(btn);
-        });
+          const listContainer = document.getElementById('select-list');
+          backendData.rotation.forEach(cat => {
+            let btn = document.createElement('button');
+            btn.className = "action-btn btn-select";
+            btn.innerText = cat + " 🏋️‍♂️";
+            btn.onclick = () => confirmWorkout(cat);
+            listContainer.appendChild(btn);
+          });
+        }
       } catch (error) {
         document.getElementById('loading').innerHTML = "<h2 style='color:#ff5722;'>النت فصل يا وحش، راجع الكونكشن ❌</h2>";
       }
@@ -514,6 +601,7 @@
     }
 
     function confirmWorkout(selectedCategory) {
+      initAudio(); // تهيئة الصوت
       activeCategory = selectedCategory;
       exercises = backendData.categoriesMap[selectedCategory] || [];
       if (exercises.length === 0) { alert("أوبس! مفيش تمارين متسجلة لليوم ده في الشيت 😅"); return; }
@@ -523,8 +611,7 @@
       document.getElementById('total-exercises').innerText = exercises.length;
 
       totalWorkoutSets = exercises.reduce((sum, ex) => sum + ex.targetSets, 0);
-      updateRemainingTime();
-      renderExercise();
+      saveLocalState(); updateRemainingTime(); renderExercise();
     }
 
     function updateRemainingTime() {
@@ -534,23 +621,22 @@
 
     function renderExercise() {
       const ex = exercises[currentIndex];
-      currentExerciseData = { weights: [], reps: [] };
-      currentSet = 1;
+      if (currentExerciseData.reps.length === 0 && currentSet === 1) { currentExerciseData = { weights: [], reps: [] }; }
 
-      // الترتيب الجديد في العرض
       document.getElementById('exercise-category').innerText = "📌 " + activeCategory;
       document.getElementById('exercise-title').innerText = ex.name;
-
       document.getElementById('current-set').innerText = currentSet;
       document.getElementById('max-sets').innerText = ex.targetSets;
       document.getElementById('target-reps').innerText = ex.targetReps;
-
       document.getElementById('current-index').innerText = currentIndex + 1;
       document.getElementById('progress-bar').style.width = ((currentIndex / exercises.length) * 100) + '%';
       resetUI();
     }
 
     function startRest() {
+      initAudio(); // لضمان تشغيل الصوت
+      clearInterval(nagInterval); // نوقف الزن لو كان شغال
+
       document.getElementById('main-btn').classList.add('hide');
       const wrapper = document.getElementById('timer-wrapper');
       const inner = document.getElementById('timer-inner');
@@ -567,15 +653,62 @@
         timeLeft--; inner.innerText = timeLeft;
         let pct = (timeLeft / 60) * 100;
         document.getElementById('timer-circle').style.background = `conic-gradient(var(--primary) ${pct}%, #333 ${pct}%)`;
-        if (timeLeft <= 0) skipTimer();
+
+        // لما التايمر يخلص طبيعي
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          triggerEndRestAlarm(); // تشغيل المنبه والهزاز
+        }
       }, 1000);
     }
 
+    // 🚨 دالة المنبه لما الراحة تخلص 🚨
+    function triggerEndRestAlarm() {
+      document.getElementById('timer-wrapper').style.display = 'none';
+      document.getElementById('motivation-text').style.display = 'none';
+
+      // 5 بيبات ورا بعض + هزاز للموبايل
+      playBeep(5, 300, 600);
+      if (navigator.vibrate) navigator.vibrate([600, 200, 600, 200, 600, 200, 600, 200, 600]);
+
+      showInputs();
+      startNagging(); // شغل المتابع الزنان
+    }
+
+    // تخطي التايمر (المستخدم داس عليه بإيده)
     function skipTimer() {
       clearInterval(countdown);
       document.getElementById('timer-wrapper').style.display = 'none';
       document.getElementById('motivation-text').style.display = 'none';
+
+      // هزة خفيفة عشان هو صاحي أساساً
+      if (navigator.vibrate) navigator.vibrate(100);
+
       showInputs();
+      startNagging(); // شغل المتابع عشان ميسرحش وهو بيسجل
+    }
+
+    // ⏰ دالة الزن (بتنبهك لو فضلت فاتح الشاشة ومسجلتش)
+    function startNagging() {
+      clearInterval(nagInterval);
+      nagInterval = setInterval(() => {
+        if (document.getElementById('input-section').style.display === 'block') {
+          // زن خفيف كل 45 ثانية
+          playBeep(2, 200, 300);
+          if (navigator.vibrate) navigator.vibrate([300, 200, 300]);
+
+          // تحريك زرار التسجيل عشان يلفت انتباهه
+          let btn = document.getElementById('log-set-btn');
+          btn.innerHTML = "فوق يا وحش! العب وسجل ⚠️";
+          btn.style.background = "linear-gradient(45deg, #e53935, #ff9800)";
+          setTimeout(() => {
+            btn.innerHTML = "سجل يا كوتش 📝✅";
+            btn.style.background = "linear-gradient(45deg, var(--primary), #ff9800)";
+          }, 4000);
+        } else {
+          clearInterval(nagInterval);
+        }
+      }, 45000); // يزن كل 45 ثانية
     }
 
     function showInputs() {
@@ -590,32 +723,33 @@
     }
 
     function confirmSet() {
+      clearInterval(nagInterval); // سكّت الزنان بمجرد ما يدوس تسجيل
+
       const w = document.getElementById('weight-input').value;
       const r = document.getElementById('reps-input').value;
       if (!w || !r) { alert("أكتب الوزن والعدات يا بطل عشان أسجل! 🤨"); return; }
 
-      currentExerciseData.weights.push(w);
-      currentExerciseData.reps.push(r);
-      completedWorkoutSets++;
-      updateRemainingTime();
+      currentExerciseData.weights.push(w); currentExerciseData.reps.push(r);
+      completedWorkoutSets++; updateRemainingTime();
 
       let maxSets = parseInt(document.getElementById('max-sets').innerText);
       if (currentSet < maxSets) {
-        currentSet++;
-        document.getElementById('current-set').innerText = currentSet;
-        resetUI();
+        currentSet++; document.getElementById('current-set').innerText = currentSet;
+        saveLocalState(); resetUI();
       } else {
         const logBtn = document.getElementById('log-set-btn');
         logBtn.innerHTML = "بحفظ في الشيت... ثواني ⏳"; logBtn.disabled = true;
-        saveExerciseToSheet();
+        saveLocalState(); saveExerciseToSheet();
       }
     }
 
     function addExtraSet() {
       let maxSetsEl = document.getElementById('max-sets');
       maxSetsEl.innerText = parseInt(maxSetsEl.innerText) + 1;
+      exercises[currentIndex].targetSets = parseInt(maxSetsEl.innerText);
       totalWorkoutSets++; updateRemainingTime();
       document.getElementById('extra-set-btn').style.display = 'none';
+      saveLocalState();
     }
 
     async function saveExerciseToSheet() {
@@ -623,11 +757,8 @@
       let finalWeights = currentExerciseData.weights.filter((w, i) => i === 0 || w !== currentExerciseData.weights[i - 1]).join("-");
 
       const payload = {
-        date: new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60 * 1000)).toISOString().split('T')[0],
-        category: activeCategory,
-        exerciseName: exercises[currentIndex].name,
-        weight: finalWeights,
-        reps: finalReps
+        date: getTodayDate(), category: activeCategory, exerciseName: exercises[currentIndex].name,
+        weight: finalWeights, reps: finalReps
       };
 
       try {
@@ -636,24 +767,28 @@
         if (result.status === 'error') { alert("⚠️ كابتن، الشيت معترض:\n\n" + result.message); resetUI(); return; }
 
         if (currentIndex < exercises.length - 1) {
-          currentIndex++; renderExercise();
+          currentIndex++; currentSet = 1; currentExerciseData = { weights: [], reps: [] };
+          saveLocalState(); renderExercise();
         } else {
+          clearLocalState();
           document.getElementById('progress-bar').style.width = '100%';
           document.querySelector('.main-card').innerHTML = `<h1 style="color:var(--success);font-size:45px; text-shadow: 0 0 15px rgba(76,175,80,0.5);">تم يا وحش! 🏆💯</h1><p style="margin-top:15px;color:#ccc; font-size: 18px;">عاش جداً! كل أرقام التمرينة اتسجلت بالمسطرة.. خد شاور وروّق.</p>`;
         }
       } catch (error) {
-        alert("النت فصل ومش عارف أحفظ في الشيت! 📡❌"); resetUI();
+        alert("النت فصل ومش عارف أحفظ في الشيت! 📡❌ جرب تدوس تسجيل تاني."); resetUI();
       }
     }
 
     function resetUI() {
       clearInterval(countdown);
+      clearInterval(nagInterval);
       document.getElementById('main-btn').classList.remove('hide');
       document.getElementById('timer-wrapper').style.display = 'none';
       document.getElementById('motivation-text').style.display = 'none';
       document.getElementById('input-section').style.display = 'none';
       const logBtn = document.getElementById('log-set-btn');
       logBtn.innerHTML = "سجل يا كوتش 📝✅"; logBtn.disabled = false;
+      logBtn.style.background = "linear-gradient(45deg, var(--primary), #ff9800)"; // رجع لونه الطبيعي
     }
   </script>
 </body>
