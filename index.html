@@ -193,7 +193,7 @@
 
     <script>
         // ============== 🔴 ضع رابط الـ Web App الخاص بك هنا 🔴 ==============
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzedIIPIAMVs9iRafPv6Q7JAaWsd8fGaAs1SDVMWlhMFw-Lj3fvZoZRXJ18LahySyNn/exec"; 
+        const WEB_APP_URL = "ضع_الرابط_هنا"; 
         // ======================================================================
 
         const motivations = ["شايفك 👀.. دغدغ الحديد 💥", "عاش يا دبابة! 🦍", "هات آخرك، الوجع ده هو النتيجة 💯"];
@@ -301,4 +301,231 @@
 
             for(let ex in hData) {
                 if(hData[ex].length === 0) continue;
-          
+                let dataPoints = sortedDates.map(date => {
+                    let record = hData[ex].find(d => d.date === date);
+                    return record ? record.weight : null;
+                });
+                datasets.push({
+                    label: ex, data: dataPoints,
+                    borderColor: colors[colorIndex % colors.length],
+                    backgroundColor: colors[colorIndex % colors.length] + '33',
+                    borderWidth: 2, pointRadius: 4, pointHoverRadius: 6,
+                    tension: 0.3, spanGaps: true
+                });
+                colorIndex++;
+            }
+
+            if(progressChartInstance) progressChartInstance.destroy(); // لمسح القديم لو موجود
+
+            Chart.defaults.font.family = 'Cairo';
+            progressChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: { labels: sortedDates, datasets: datasets },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { labels: { color: '#fff', font: {size: 12} } },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0a5', maxTicksLimit: 5 } },
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#a0a0a5' } }
+                    },
+                    interaction: { mode: 'nearest', axis: 'x', intersect: false }
+                }
+            });
+        }
+
+        function buildFullDashboard() {
+            const container = document.getElementById('dashboard-full-stats');
+            container.innerHTML = '';
+            backendData.rotation.forEach(cat => {
+                const exList = backendData.categoriesMap[cat] || [];
+                if(exList.length === 0) return;
+                let html = `<div class="dash-category-box"><div class="dash-cat-header">📌 ${cat}</div>`;
+                exList.forEach(ex => {
+                    let lastWs = ex.history.weight.split("-"); let cleanW = lastWs[lastWs.length - 1];
+                    if(cleanW !== "--") {
+                        html += `<div style="display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid #222; font-size:13px;">
+                                    <span style="color:#fff; font-weight:bold; width:45%; text-align:right;">${ex.name}</span>
+                                    <span style="color:var(--text-muted);">⚖️ ${cleanW} كجم | 🔢 ${ex.history.reps.split("-")[0]} ع</span>
+                                 </div>`;
+                    }
+                });
+                html += `</div>`; container.innerHTML += html;
+            });
+        }
+
+        function openDashboard() {
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('dashboard-screen').style.display = 'block';
+            setTimeout(renderProgressChart, 100); // نرسمه بعد ما الشاشة تفتح عشان ياخد المقاس صح
+        }
+        function closeDashboard() {
+            document.getElementById('dashboard-screen').style.display = 'none';
+            document.getElementById('welcome-screen').style.display = 'block';
+        }
+
+        function toggleSelectionList() {
+            const list = document.getElementById('select-list');
+            list.style.display = list.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function confirmWorkout(selectedCategory) {
+            initAudio(); activeCategory = selectedCategory; 
+            exercises = backendData.categoriesMap[selectedCategory] || [];
+            if(exercises.length === 0) return;
+            document.getElementById('welcome-screen').style.display = 'none'; document.getElementById('app-content').style.display = 'flex';
+            totalWorkoutSets = exercises.reduce((sum, ex) => sum + ex.targetSets, 0);
+            sessionSummary = []; saveLocalState(); updateRemainingTime(); renderExercise();
+        }
+
+        function updateRemainingTime() {
+            let remainingSets = totalWorkoutSets - completedWorkoutSets;
+            document.getElementById('time-left').innerText = Math.max(0, Math.ceil(remainingSets * 1.5));
+            document.getElementById('total-exercises').innerText = exercises.length;
+        }
+
+        function renderExercise() {
+            const ex = exercises[currentIndex];
+            if (currentExerciseData.reps.length === 0 && currentSet === 1) { currentExerciseData = { weights: [], reps: [] }; }
+            document.getElementById('exercise-category').innerText = "📌 " + activeCategory;
+            document.getElementById('exercise-title').innerText = ex.name; document.getElementById('current-set').innerText = currentSet;
+            document.getElementById('max-sets').innerText = ex.targetSets; document.getElementById('target-reps').innerText = ex.targetReps;
+            document.getElementById('current-index').innerText = currentIndex + 1;
+            document.getElementById('progress-bar').style.width = ((currentIndex / exercises.length) * 100) + '%';
+            resetUI();
+        }
+
+        function startNagging(message) {
+            clearInterval(naggingInterval);
+            naggingInterval = setInterval(() => {
+                playBeep(2, 200, 300); if(navigator.vibrate) navigator.vibrate([300, 200, 300]);
+                let btn = document.getElementById('main-btn'); let originalText = btn.innerHTML; let originalBg = btn.style.background;
+                btn.innerHTML = message; btn.style.background = "linear-gradient(45deg, #e53935, #ff9800)";
+                setTimeout(() => { btn.innerHTML = originalText; btn.style.background = originalBg; }, 4000);
+            }, 60000); 
+        }
+
+        function startSetPlaying() {
+            initAudio(); clearInterval(naggingInterval); 
+            let btn = document.getElementById('main-btn'); btn.innerHTML = "خلصت؟ 👏"; btn.className = "action-btn btn-play"; btn.onclick = onFinishSetClick;
+            const teaseEl = document.getElementById('tease-text'); teaseEl.innerText = motivations[Math.floor(Math.random() * motivations.length)];
+            teaseEl.style.display = 'block'; startNagging("مستنيك! لو خلصت دوس ⚠️");
+        }
+
+        function onFinishSetClick() {
+            clearInterval(naggingInterval); document.getElementById('tease-text').style.display = 'none';
+            document.getElementById('main-btn').style.display = 'none'; showInputs(); startNagging("سجل الأرقام عشان تريح 📝⚠️");
+        }
+
+        function showInputs() {
+            document.getElementById('input-section').style.display = 'block'; let ex = exercises[currentIndex];
+            let lastWArray = ex.history.weight.split("-"); let lastW = lastWArray[lastWArray.length - 1];
+            document.getElementById('weight-input').value = currentExerciseData.weights.length > 0 ? currentExerciseData.weights[currentExerciseData.weights.length - 1] : (lastW==="--"?"":lastW);
+            document.getElementById('reps-input').value = ex.targetReps;
+            let maxSets = parseInt(document.getElementById('max-sets').innerText);
+            document.getElementById('extra-set-btn').style.display = (currentSet === maxSets) ? 'flex' : 'none';
+        }
+
+        function confirmSetAndRest() {
+            clearInterval(naggingInterval);
+            const w = document.getElementById('weight-input').value; const r = document.getElementById('reps-input').value;
+            if(!w || !r) { alert("أكتب الأرقام! 🤨"); return; }
+            currentExerciseData.weights.push(w); currentExerciseData.reps.push(r);
+            completedWorkoutSets++; updateRemainingTime();
+            let maxSets = parseInt(document.getElementById('max-sets').innerText);
+            document.getElementById('input-section').style.display = 'none';
+
+            if(currentSet < maxSets) {
+                saveLocalState(); 
+                startRestTimer(() => { currentSet++; document.getElementById('current-set').innerText = currentSet; saveLocalState(); resetUI(); });
+            } else {
+                let maxTodayWeight = Math.max(...currentExerciseData.weights.map(Number));
+                let oldWArray = exercises[currentIndex].history.weight.split("-");
+                let oldMaxW = Math.max(...oldWArray.map(n => isNaN(n) ? 0 : Number(n)));
+                sessionSummary.push({ name: exercises[currentIndex].name, oldW: oldMaxW, newW: maxTodayWeight });
+                
+                saveLocalState(); saveExerciseToSheetBackground(); 
+                
+                startRestTimer(() => {
+                    if (currentIndex < exercises.length - 1) {
+                        currentIndex++; currentSet = 1; currentExerciseData = { weights: [], reps: [] }; saveLocalState(); renderExercise();
+                    } else { showFinalReport(); }
+                });
+            }
+        }
+
+        function startRestTimer(callback) {
+            const wrapper = document.getElementById('timer-wrapper'); const inner = document.getElementById('timer-inner');
+            document.getElementById('motivation-text').innerText = "خد نفسك.. وهنرجع 🔥"; document.getElementById('motivation-text').style.display = 'block';
+            wrapper.style.display = 'block'; timeLeft = 60; inner.innerText = timeLeft;
+            document.getElementById('timer-circle').style.background = `conic-gradient(var(--primary) 100%, #333 100%)`;
+            countdown = setInterval(() => {
+                timeLeft--; inner.innerText = timeLeft; let pct = (timeLeft / 60) * 100;
+                document.getElementById('timer-circle').style.background = `conic-gradient(var(--primary) ${pct}%, #333 ${pct}%)`;
+                if (timeLeft <= 0) { clearInterval(countdown); finishRest(callback); }
+            }, 1000);
+        }
+
+        function finishRest(callback) {
+            document.getElementById('timer-wrapper').style.display = 'none'; document.getElementById('motivation-text').style.display = 'none';
+            playBeep(5, 300, 600); if(navigator.vibrate) navigator.vibrate([600, 200, 600, 200, 600, 200, 600, 200, 600]);
+            if(callback) callback(); startNagging("الراحة خلصت! يلا ابدأ 🚨");
+        }
+
+        function skipTimer() {
+            clearInterval(countdown); if(navigator.vibrate) navigator.vibrate(100); 
+            finishRest(() => {
+                let maxSets = parseInt(document.getElementById('max-sets').innerText);
+                if(currentSet < maxSets) { currentSet++; document.getElementById('current-set').innerText = currentSet; saveLocalState(); resetUI(); } 
+                else {
+                    if (currentIndex < exercises.length - 1) { currentIndex++; currentSet = 1; currentExerciseData = { weights: [], reps: [] }; saveLocalState(); renderExercise(); } 
+                    else { showFinalReport(); }
+                }
+            });
+        }
+
+        function addExtraSet() {
+            let maxSetsEl = document.getElementById('max-sets'); maxSetsEl.innerText = parseInt(maxSetsEl.innerText) + 1;
+            exercises[currentIndex].targetSets = parseInt(maxSetsEl.innerText); totalWorkoutSets++; updateRemainingTime();
+            document.getElementById('extra-set-btn').style.display = 'none'; saveLocalState();
+        }
+
+        function showFinalReport() {
+            clearLocalState(); document.getElementById('progress-bar').style.width = '100%';
+            document.getElementById('workout-card').classList.add('hide'); document.getElementById('summary-card').classList.remove('hide'); 
+            
+            let improvedCount = 0; const statsContainer = document.getElementById('summary-stats'); statsContainer.innerHTML = '';
+            
+            sessionSummary.forEach(item => {
+                let trendIcon = "➖"; let trendClass = "trend-flat";
+                if(item.newW > item.oldW && item.oldW > 0) { trendIcon = "📈"; trendClass = "trend-up"; improvedCount++; }
+                statsContainer.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #2c2c35; padding: 8px 0; font-size: 13px; align-items: center;">
+                        <span style="color: #fff; font-weight: bold; width: 40%; font-size: 12px; text-align:right;">${item.name}</span>
+                        <span style="color: var(--text-muted); font-size: 12px;"> ${item.oldW === 0 ? '--' : item.oldW} ⬅️ <span class="${trendClass}">${item.newW} كجم ${trendIcon}</span></span>
+                    </div>`;
+            });
+            
+            let rating = 7 + (improvedCount > 0 ? (improvedCount >= 3 ? 3 : 2) : 1); if (rating > 10) rating = 10;
+            document.getElementById('final-rating').innerText = rating + "/10";
+            document.getElementById('rating-msg').innerText = rating >= 9 ? "يا وحش! كسرت أرقامك 🔥" : "عاش جداً، حافظت على مستواك 👏";
+        }
+
+        async function saveExerciseToSheetBackground() {
+            let finalReps = currentExerciseData.reps.every(r => r === currentExerciseData.reps[0]) ? `${currentExerciseData.reps.length}*${currentExerciseData.reps[0]}` : currentExerciseData.reps.join("-");
+            let finalWeights = currentExerciseData.weights.filter((w, i) => i === 0 || w !== currentExerciseData.weights[i-1]).join("-");
+            try { await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ date: getTodayDate(), category: activeCategory, exerciseName: exercises[currentIndex].name, weight: finalWeights, reps: finalReps }) }); } catch (error) {}
+        }
+
+        function resetUI() {
+            clearInterval(countdown); clearInterval(naggingInterval);
+            document.getElementById('timer-wrapper').style.display = 'none'; document.getElementById('motivation-text').style.display = 'none';
+            document.getElementById('tease-text').style.display = 'none'; document.getElementById('input-section').style.display = 'none';
+            let btn = document.getElementById('main-btn'); btn.style.display = 'block'; btn.innerHTML = "ابدأ المجموعة 💪"; btn.className = "action-btn btn-primary"; btn.onclick = startSetPlaying;
+            startNagging("أنت نمت ولا إيه؟ يلا! 🚨");
+        }
+    </script>
+</body>
+</html>
