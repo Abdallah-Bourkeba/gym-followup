@@ -71,6 +71,46 @@
             padding: 0 10px;
         }
 
+        /* --- تصميم الشريط العلوي (Navbar) واللوجو --- */
+        .top-navbar {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            width: 100%; 
+            max-width: 500px; 
+            margin-bottom: 20px;
+            background: rgba(28, 28, 36, 0.6); 
+            padding: 10px 15px;
+            border-radius: 16px; 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .nav-brand { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        .nav-logo { 
+            width: 42px; 
+            height: 42px; 
+            border-radius: 10px; /* لو عايزه مدور تماماً خليها 50% */
+            object-fit: cover; 
+            border: 2px solid var(--primary); 
+            box-shadow: 0 0 10px rgba(255, 87, 34, 0.4);
+        }
+        .nav-title { 
+            font-size: 16px; 
+            font-weight: 900; 
+            color: #fff; 
+            margin: 0; 
+            letter-spacing: 0.5px;
+        }
+        .nav-actions { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        
         .icon-btn {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid #444;
@@ -627,22 +667,19 @@
 
     <div id="welcome-screen" class="welcome-screen" style="display: none;">
         <div class="welcome-box">
+            <img src="logo.png" alt="Coach Logo" style="width: 80px; height: 80px; border-radius: 20px; border: 2px solid var(--primary); margin-bottom: 15px; box-shadow: 0 0 20px rgba(255,87,34,0.3);">
+            
             <h2 style="margin-bottom: 20px; font-weight: 900; font-size: 26px;">يا هلا بالوحش! 🦍🔥</h2>
-
+            
             <button class="action-btn btn-dash" onclick="openDashboard()">📊 لوحة الإحصائيات الشاملة</button>
             <hr style="border:0; border-top:1px dashed #444; margin: 20px 0;">
-
-            <p style="color: var(--text-muted); margin-bottom: 10px; font-size: 14px;">التمرينة المقترحة ليك النهاردة:
-            </p>
-            <div class="badge"
-                style="color: #ffeb3b; border-color: #ffeb3b; font-size: 22px; margin-bottom: 25px; background: rgba(255,235,59,0.1);"
-                id="lbl-suggested-workout">--</div>
-
-            <button class="action-btn btn-success" onclick="confirmWorkout(activeCategory)">جاهز، يلا بينا نفورم!
-                🚀</button>
-            <button class="action-btn btn-secondary" onclick="toggleSelectionList()">لا، هلعب عضلة تانية النهاردة
-                🔄</button>
-
+        
+            <p style="color: var(--text-muted); margin-bottom: 10px; font-size: 14px;">التمرينة المقترحة ليك النهاردة:</p>
+            <div class="badge" style="color: #ffeb3b; border-color: #ffeb3b; font-size: 22px; margin-bottom: 25px; background: rgba(255,235,59,0.1);" id="lbl-suggested-workout">--</div>
+            
+            <button class="action-btn btn-success" onclick="confirmWorkout(activeCategory)">جاهز، يلا بينا نفورم! 🚀</button>
+            <button class="action-btn btn-secondary" onclick="toggleSelectionList()">لا، هلعب عضلة تانية النهاردة 🔄</button>
+            
             <div id="select-list" class="select-list"></div>
         </div>
     </div>
@@ -676,12 +713,16 @@
     </div>
 
     <div id="app-content" style="display: none; width: 100%; flex-direction: column; align-items: center;">
-
-        <div class="header-actions">
-            <button class="icon-btn" onclick="openSettings()">⚙️</button>
-            <button class="reset-btn" style="margin: 0;" onclick="resetWorkoutSession()">🔄 الغي التمرينة من
-                الصفر</button>
+    <div class="top-navbar">
+        <div class="nav-brand">
+            <img src="logo.png" alt="Coach Logo" class="nav-logo">
+            <h2 class="nav-title">كوتش<span style="color: var(--primary);"> الذكي</span></h2>
         </div>
+        <div class="nav-actions">
+            <button class="reset-btn" style="margin: 0; font-size: 11px;" onclick="resetWorkoutSession()">🔄 ريست</button>
+            <button class="icon-btn" onclick="openSettings()">⚙️</button>
+        </div>
+    </div>
 
         <div class="time-header">⏳ متبقي للجيم: <span id="time-left">--</span> دقيقة</div>
 
