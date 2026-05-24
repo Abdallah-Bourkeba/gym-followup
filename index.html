@@ -269,8 +269,13 @@
             margin-bottom: 15px;
             display: inline-flex;
             gap: 10px;
-            position: fixed;
             align-items: center;
+            position: fixed;
+            /* تم التعديل هنا */
+            top: 15px;
+            /* تم التعديل هنا */
+            z-index: 100;
+            /* عشان يفضل فوق أي حاجة وإنت بتعمل سكرول */
         }
 
         .time-header span {
@@ -838,7 +843,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRXUybB54-vmGRvS3BZDud2MAtqIpa6BFf7j5icrZw7Nbpksppi963zkmY45u9axgz/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwwVJFdVmgit-JHnAsIFcJ4R-2Vf6BQLG2upoYbPDaRxHGvTDdZqDYOkZrP9FWHGHhU/exec";
 
         const motivations = ["شايفك 👀.. دغدغ الحديد 💥", "عاش يا دبابة! 🦍", "هات آخرك، الوجع ده هو النتيجة 💯"];
 
@@ -1018,7 +1023,19 @@
         }
 
         function updateRemainingTime() {
+            // 1. إعادة حساب المجموعات المنجزة أو الملغية ديناميكياً (عشان لو عملت تراجع مستحيل يخرف)
+            completedWorkoutSets = 0;
+            exercises.forEach((ex, idx) => {
+                if (ex.status === 'completed' || ex.status === 'skipped') {
+                    completedWorkoutSets += ex.targetSets;
+                } else if (idx === currentIndex) {
+                    completedWorkoutSets += (currentSet - 1);
+                }
+            });
+
             let remainingSets = totalWorkoutSets - completedWorkoutSets;
+            if (remainingSets < 0) remainingSets = 0; // تأمين إضافي
+
             let remainingExercises = exercises.filter(e => e.status === 'pending').length;
 
             // ثوابت الوقت بالثواني
@@ -1028,12 +1045,10 @@
 
             let totalTime = 0;
 
-            // حساب الوقت للمجموعات المتبقية (أداء + راحة)
             if (remainingSets > 0) {
                 totalTime += (remainingSets * workTimePerSet) + (remainingSets * restTimePerSet);
             }
 
-            // لو فاضل تمارين، هنضيف وقت النقل بينهم
             if (remainingExercises > 1) {
                 totalTime += (remainingExercises - 1) * transitionTime;
             }
@@ -1096,9 +1111,6 @@
             if (confirm("عايز ترجع تلعب التمرينة دي تاني؟ 💪")) {
                 let ex = exercises[idx];
                 ex.status = 'pending';
-
-                // 1. نخصم المجموعات اللي كنا ضفناها للعداد وقت الإلغاء عشان التايمر يظبط
-                completedWorkoutSets -= ex.targetSets;
 
                 // 2. نمسح التمرينة من الملخص النهائي (عشان متظهرش بصفر وتظهر تاني برقمها الحقيقي)
                 sessionSummary = sessionSummary.filter(item => !(item.name === ex.name && item.newW === 0));
@@ -1449,17 +1461,6 @@
 
             document.getElementById('extra-set-prompt').style.display = 'block';
             startNagging("ها يا وحش هندخل ع التمرينة اللي بعدها؟ 🚨");
-        }
-
-
-        function addExtraSet() {
-            clearInterval(naggingInterval);
-            document.getElementById('extra-set-prompt').style.display = 'none';
-            let maxSetsEl = document.getElementById('max-sets'); maxSetsEl.innerText = parseInt(maxSetsEl.innerText) + 1;
-            exercises[currentIndex].targetSets = parseInt(maxSetsEl.innerText); totalWorkoutSets++; updateRemainingTime();
-
-            currentSet++; document.getElementById('current-set').innerText = currentSet;
-            saveLocalState(); resetUI();
         }
 
         function showFinalReport() {
