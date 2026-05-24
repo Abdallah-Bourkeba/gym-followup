@@ -73,44 +73,50 @@
 
         /* --- تصميم الشريط العلوي (Navbar) واللوجو --- */
         .top-navbar {
-            display: flex; 
-            justify-content: space-between; 
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            width: 100%; 
-            max-width: 500px; 
+            width: 100%;
+            max-width: 500px;
             margin-bottom: 20px;
-            background: rgba(28, 28, 36, 0.6); 
+            margin-top: 60px;
+            background: rgba(28, 28, 36, 0.6);
             padding: 10px 15px;
-            border-radius: 16px; 
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        .nav-brand { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        .nav-logo { 
-            width: 42px; 
-            height: 42px; 
-            border-radius: 10px; /* لو عايزه مدور تماماً خليها 50% */
-            object-fit: cover; 
-            border: 2px solid var(--primary); 
+
+        .nav-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            /* لو عايزه مدور تماماً خليها 50% */
+            object-fit: cover;
+            border: 2px solid var(--primary);
             box-shadow: 0 0 10px rgba(255, 87, 34, 0.4);
         }
-        .nav-title { 
-            font-size: 16px; 
-            font-weight: 900; 
-            color: #fff; 
-            margin: 0; 
+
+        .nav-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: #fff;
+            margin: 0;
             letter-spacing: 0.5px;
         }
-        .nav-actions { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        
+
         .icon-btn {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid #444;
@@ -165,6 +171,7 @@
             font-size: 18px;
             text-align: center;
             font-weight: bold;
+            direction: ltr;
         }
 
         /* شريط التمارين الأفقي */
@@ -230,7 +237,7 @@
             background-color: var(--card-bg);
             max-width: 500px;
             border-radius: 20px;
-            padding: 25px 15px;
+            padding: 50px 15px 25px;
             text-align: center;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
             width: 100%;
@@ -262,6 +269,7 @@
             margin-bottom: 15px;
             display: inline-flex;
             gap: 10px;
+            position: fixed;
             align-items: center;
         }
 
@@ -464,6 +472,7 @@
             font-weight: 900;
             text-align: center;
             outline: none;
+            direction: ltr;
         }
 
         .action-btn {
@@ -650,7 +659,9 @@
 <body>
 
     <div id="loading" style="text-align:center; margin-top:30vh;">
-        <h2 style="font-size: 24px;">بيسخن الكابتن... ⏳🏋️‍♂️</h2>
+        <img src="logo.png" alt="Coach Logo"
+            style="width: 80px; height: 80px; border-radius: 20px; border: 2px solid var(--primary); margin-bottom: 15px; box-shadow: 0 0 20px rgba(255,87,34,0.3);">
+        <h2 style="font-size: 24px;">الكابتن بيسخن... ⏳🏋️‍♂️</h2>
     </div>
 
     <div id="settings-modal" class="modal">
@@ -667,25 +678,34 @@
 
     <div id="welcome-screen" class="welcome-screen" style="display: none;">
         <div class="welcome-box">
-            <img src="logo.png" alt="Coach Logo" style="width: 80px; height: 80px; border-radius: 20px; border: 2px solid var(--primary); margin-bottom: 15px; box-shadow: 0 0 20px rgba(255,87,34,0.3);">
-            
+            <img src="logo.png" alt="Coach Logo"
+                style="width: 80px; height: 80px; border-radius: 20px; border: 2px solid var(--primary); margin-bottom: 15px; box-shadow: 0 0 20px rgba(255,87,34,0.3);">
+
             <h2 style="margin-bottom: 20px; font-weight: 900; font-size: 26px;">يا هلا بالوحش! 🦍🔥</h2>
-            
+
             <button class="action-btn btn-dash" onclick="openDashboard()">📊 لوحة الإحصائيات الشاملة</button>
             <hr style="border:0; border-top:1px dashed #444; margin: 20px 0;">
-        
-            <p style="color: var(--text-muted); margin-bottom: 10px; font-size: 14px;">التمرينة المقترحة ليك النهاردة:</p>
-            <div class="badge" style="color: #ffeb3b; border-color: #ffeb3b; font-size: 22px; margin-bottom: 25px; background: rgba(255,235,59,0.1);" id="lbl-suggested-workout">--</div>
-            
-            <button class="action-btn btn-success" onclick="confirmWorkout(activeCategory)">جاهز، يلا بينا نفورم! 🚀</button>
-            <button class="action-btn btn-secondary" onclick="toggleSelectionList()">لا، هلعب عضلة تانية النهاردة 🔄</button>
-            
+
+            <p style="color: var(--text-muted); margin-bottom: 10px; font-size: 14px;">التمرينة المقترحة ليك النهاردة:
+            </p>
+            <div class="badge"
+                style="color: #ffeb3b; border-color: #ffeb3b; font-size: 22px; margin-bottom: 25px; background: rgba(255,235,59,0.1);"
+                id="lbl-suggested-workout">--</div>
+
+            <button class="action-btn btn-success" onclick="confirmWorkout(activeCategory)">جاهز، يلا بينا نفورم!
+                🚀</button>
+            <button class="action-btn btn-secondary" onclick="toggleSelectionList()">لا، هلعب عضلة تانية النهاردة
+                🔄</button>
+
             <div id="select-list" class="select-list"></div>
         </div>
     </div>
 
     <div id="dashboard-screen" class="dashboard-screen">
         <div class="main-card" style="padding-top: 15px;">
+            <img src="logo.png" alt="Coach Logo"
+                style="width: 80px; height: 80px; border-radius: 20px; border: 2px solid var(--primary); margin-bottom: 15px; box-shadow: 0 0 20px rgba(255,87,34,0.3);">
+
             <h2 style="color: #fff; margin-bottom: 20px;">لوحة الأبطال 🏆</h2>
 
             <div class="stats-cards">
@@ -713,16 +733,17 @@
     </div>
 
     <div id="app-content" style="display: none; width: 100%; flex-direction: column; align-items: center;">
-    <div class="top-navbar">
-        <div class="nav-brand">
-            <img src="logo.png" alt="Coach Logo" class="nav-logo">
-            <h2 class="nav-title">كوتش<span style="color: var(--primary);"> الذكي</span></h2>
+        <div class="top-navbar">
+            <div class="nav-brand">
+                <img src="logo.png" alt="Coach Logo" class="nav-logo">
+                <h2 class="nav-title">كوتش<span style="color: var(--primary);"> الذكي</span></h2>
+            </div>
+            <div class="nav-actions">
+                <button class="reset-btn" style="margin: 0; font-size: 11px;" onclick="resetWorkoutSession()">🔄
+                    ريست</button>
+                <button class="icon-btn" onclick="openSettings()">⚙️</button>
+            </div>
         </div>
-        <div class="nav-actions">
-            <button class="reset-btn" style="margin: 0; font-size: 11px;" onclick="resetWorkoutSession()">🔄 ريست</button>
-            <button class="icon-btn" onclick="openSettings()">⚙️</button>
-        </div>
-    </div>
 
         <div class="time-header">⏳ متبقي للجيم: <span id="time-left">--</span> دقيقة</div>
 
@@ -744,9 +765,22 @@
             <h1 id="exercise-title" class="exercise-title">اسم التمرين</h1>
 
             <div class="exercise-info">
-                <span class="badge" style="color: #00bcd4; border-color: #00bcd4;">مجموعة: <span
-                        id="current-set">1</span> / <span id="max-sets">3</span> 🔄</span>
-                <span class="badge badge-target">تارجت: <span id="target-reps">10</span> عدات 🎯</span>
+                <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                    <span class="badge badge-target" id="dynamic-target-badge"
+                        style="font-size: 16px; padding: 8px 15px; width: fit-content;">تارجت: -- 🎯</span>
+
+                    <div style="display: flex;gap: 20px;width: 100%;flex-direction: row;">
+                        <span style="font-size: 13px; color: var(--text-muted);width: 120px;"
+                            id="set-progress-text">المجموعة
+                            1</span>
+                        <div
+                            style="width: 80%; background: rgba(0,0,0,0.5); border-radius: 10px; height: 10px; border: 1px solid #444; overflow: hidden; margin-top: 5px;">
+                            <div id="set-progress-bar"
+                                style="height: 100%; background: linear-gradient(90deg, #00bcd4, #0288d1); width: 0%; transition: width 0.5s ease;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <button id="main-btn" class="action-btn btn-primary" onclick="startSetPlaying()">ابدأ المجموعة 💪</button>
@@ -818,6 +852,10 @@
 
         let activeCategory = ""; let sessionSummary = [];
         let audioCtx; let naggingInterval; let progressChartInstance = null;
+
+        let globalWorkoutSeconds = 0;
+        let globalWorkoutInterval = null;
+        let isRestingOrTransitioning = false; // تتبع حالة المستخدم الحالية
 
         const getTodayDate = () => {
             const today = new Date(); const offset = today.getTimezoneOffset();
@@ -981,60 +1019,166 @@
 
         function updateRemainingTime() {
             let remainingSets = totalWorkoutSets - completedWorkoutSets;
-            document.getElementById('time-left').innerText = Math.max(0, Math.ceil(remainingSets * (defaultRestTime / 60 + 0.5)));
-            document.getElementById('total-exercises').innerText = exercises.length;
+            let remainingExercises = exercises.filter(e => e.status === 'pending').length;
+
+            // ثوابت الوقت بالثواني
+            let workTimePerSet = 25; // 20 ثانية أداء + 5 ثواني استعداد
+            let restTimePerSet = defaultRestTime;
+            let transitionTime = 30; // 30 ثانية نقل بين الأجهزة
+
+            let totalTime = 0;
+
+            // حساب الوقت للمجموعات المتبقية (أداء + راحة)
+            if (remainingSets > 0) {
+                totalTime += (remainingSets * workTimePerSet) + (remainingSets * restTimePerSet);
+            }
+
+            // لو فاضل تمارين، هنضيف وقت النقل بينهم
+            if (remainingExercises > 1) {
+                totalTime += (remainingExercises - 1) * transitionTime;
+            }
+
+            globalWorkoutSeconds = totalTime;
+            startGlobalTimer();
+        }
+
+        function startGlobalTimer() {
+            if (globalWorkoutInterval) clearInterval(globalWorkoutInterval);
+            renderGlobalTime();
+            globalWorkoutInterval = setInterval(() => {
+                if (globalWorkoutSeconds > 0) {
+                    globalWorkoutSeconds--;
+                    renderGlobalTime();
+                } else {
+                    clearInterval(globalWorkoutInterval);
+                }
+            }, 1000);
+        }
+
+        function renderGlobalTime() {
+            let m = Math.floor(globalWorkoutSeconds / 60);
+            let s = globalWorkoutSeconds % 60;
+            document.getElementById('time-left').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
         function renderTimeline() {
-            const timeline = document.getElementById('exercise-timeline'); timeline.innerHTML = '';
+            const timeline = document.getElementById('exercise-timeline');
+            timeline.innerHTML = '';
+
             exercises.forEach((ex, idx) => {
                 let btn = document.createElement('div');
                 btn.className = `timeline-item ${ex.status === 'completed' ? 'completed' : ex.status === 'skipped' ? 'skipped' : (idx === currentIndex ? 'active' : '')}`;
                 btn.innerText = ex.name;
 
-                // لو خلص التمرينة يقفلها وميرجعش ليها
-                if (ex.status === 'completed' || ex.status === 'skipped') {
+                if (ex.status === 'completed') {
                     btn.style.cursor = 'not-allowed';
                     btn.onclick = () => alert('التمرينة دي خلصت يا بطل، ركز في اللي جاي! 🦍');
+                } else if (ex.status === 'skipped') {
+                    btn.style.cursor = 'pointer'; // خليناه كليكابل تاني
+                    btn.onclick = () => revertSkippedExercise(idx);
                 } else {
                     btn.onclick = () => jumpToExercise(idx);
                 }
+
                 timeline.appendChild(btn);
             });
+
             let activeEl = timeline.querySelector('.active');
             if (activeEl) { activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+        }
+
+        function revertSkippedExercise(idx) {
+            if (currentSet > 1 || currentExerciseData.weights.length > 0) {
+                alert('عشان ترجع لتمرينة لغيتها، لازم تخلص أو تلغي التمرينة اللي في إيدك الأول 🛑');
+                return;
+            }
+
+            if (confirm("عايز ترجع تلعب التمرينة دي تاني؟ 💪")) {
+                let ex = exercises[idx];
+                ex.status = 'pending';
+
+                // 1. نخصم المجموعات اللي كنا ضفناها للعداد وقت الإلغاء عشان التايمر يظبط
+                completedWorkoutSets -= ex.targetSets;
+
+                // 2. نمسح التمرينة من الملخص النهائي (عشان متظهرش بصفر وتظهر تاني برقمها الحقيقي)
+                sessionSummary = sessionSummary.filter(item => !(item.name === ex.name && item.newW === 0));
+
+                // 3. تحديث التايمر الكلي
+                updateRemainingTime();
+
+                // 4. نروح للتمرينة
+                currentIndex = idx;
+                currentSet = 1;
+                currentExerciseData = { weights: [], reps: [] };
+
+                saveLocalState();
+                renderExercise();
+
+                alert("التمرينة رجعت.. هندغدغ الحديد! 🔥");
+            }
         }
 
         function jumpToExercise(targetIndex) {
             if (targetIndex === currentIndex || exercises[targetIndex].status === 'completed' || exercises[targetIndex].status === 'skipped') return;
             if (currentSet > 1 || currentExerciseData.weights.length > 0) {
-                alert('عشان تعزل لجهاز تاني، لازم تخلص التمرينة اللي في إيدك الأول (أو تلغيها من زرار الإلغاء تحت) 🛑'); return;
+                alert('عشان تعزل لجهاز تاني، لازم تخلص التمرينة اللي في إيدك الأول (أو تلغيها من زرار الإلغاء فوق علي الشمال) 🛑'); return;
             }
             currentIndex = targetIndex; currentSet = 1; currentExerciseData = { weights: [], reps: [] };
             saveLocalState(); renderExercise();
         }
-
         async function skipCurrentExercise() {
-            if (confirm("متأكد إنك عايز تلغي التمرينة دي وتتسجل 0 في الشيت؟ 🚫")) {
+            // التحقق لو اللاعب سجل مجموعات بالفعل قبل الإلغاء
+            let hasPartialData = currentExerciseData.weights.length > 0;
+            let confirmMsg = hasPartialData ?
+                "إنت لعبت مجموعات في التمرينة دي بالفعل! متأكد إنك عايز تلغيها وتمسح مجهودك وتتسجل 0؟ 🗑️" :
+                "متأكد إنك عايز تلغي التمرينة دي وتتسجل 0 في الشيت؟ 🚫";
+
+            if (confirm(confirmMsg)) {
                 exercises[currentIndex].status = 'skipped';
+
+                // ظبط عداد المجموعات عشان التايمر ميخرفش
                 let remainingSetsForThis = exercises[currentIndex].targetSets - (currentSet - 1);
                 completedWorkoutSets += remainingSetsForThis;
 
+                // تحديث التايمر الكلي (عشان يخصم وقت التمرينة اللي اتلغت فوراً)
+                updateRemainingTime();
+
+                // إرسال 0 صريح للشيت مع التأكد من إتمام العملية
                 try {
                     await fetch(WEB_APP_URL, {
-                        method: 'POST', body: JSON.stringify({ date: getTodayDate(), category: activeCategory, exerciseName: exercises[currentIndex].name, weight: "0", reps: "0" })
+                        method: 'POST',
+                        body: JSON.stringify({
+                            date: getTodayDate(),
+                            category: activeCategory,
+                            exerciseName: exercises[currentIndex].name,
+                            weight: "0",
+                            reps: "0"
+                        })
                     });
-                } catch (error) { console.error("فشل تسجيل الإلغاء في الشيت", error); }
+                } catch (error) {
+                    console.error("فشل تسجيل الإلغاء في الشيت", error);
+                }
+
+                // إضافة التمرينة كـ صفر في ملخص التمرينة (sessionSummary)
+                let oldWArray = exercises[currentIndex].history.weight.split("-");
+                let oldMaxW = Math.max(...oldWArray.map(n => isNaN(n) ? 0 : Number(n)));
+                sessionSummary.push({ name: exercises[currentIndex].name, oldW: oldMaxW, newW: 0 });
 
                 saveLocalState();
+
+                // الانتقال للتمرين اللي بعده (بدون تايمر تنقل، لأنك ملعبتش أو لغيت)
                 let nextIndex = exercises.findIndex(ex => ex.status === 'pending');
                 if (nextIndex !== -1) {
-                    currentIndex = nextIndex; currentSet = 1; currentExerciseData = { weights: [], reps: [] };
-                    saveLocalState(); renderExercise();
-                } else { showFinalReport(); }
+                    currentIndex = nextIndex;
+                    currentSet = 1;
+                    currentExerciseData = { weights: [], reps: [] };
+                    saveLocalState();
+                    renderExercise();
+                } else {
+                    showFinalReport();
+                }
             }
         }
-
         function renderExercise() {
             const ex = exercises[currentIndex];
             if (currentExerciseData.reps.length === 0 && currentSet === 1) { currentExerciseData = { weights: [], reps: [] }; }
@@ -1042,30 +1186,58 @@
             renderTimeline();
 
             document.getElementById('exercise-category').innerText = "📌 " + activeCategory;
-            document.getElementById('exercise-title').innerText = ex.name; document.getElementById('current-set').innerText = currentSet;
-            document.getElementById('max-sets').innerText = ex.targetSets; document.getElementById('target-reps').innerText = ex.targetReps;
+            document.getElementById('exercise-title').innerText = ex.name;
 
             let completedExCount = exercises.filter(e => e.status === 'completed' || e.status === 'skipped').length;
             document.getElementById('current-index').innerText = (completedExCount + 1 > exercises.length) ? exercises.length : (completedExCount + 1);
             document.getElementById('progress-bar').style.width = ((completedExCount / exercises.length) * 100) + '%';
-            document.getElementById('cancel-ex-btn').style.display = (ex.status === 'completed') ? 'none' : 'block';
 
-            // لو اليوزر عمل ريفريش وكان مخلص أخر مجموعة، يعرضله شاشة الاختيار
+            let cancelBtn = document.getElementById('cancel-ex-btn');
+            if (cancelBtn) cancelBtn.style.display = (ex.status === 'completed') ? 'none' : 'block';
+
             if (currentExerciseData.weights.length >= ex.targetSets && currentSet >= ex.targetSets) {
                 showExtraSetPrompt();
             } else {
                 resetUI();
             }
+
+            // استدعاء الواجهة الجديدة
+            updateExerciseTargetUI();
+            updateSetProgressBar();
         }
 
-        function startNagging(message) {
+        function renderExerciseTransitionState() {
+            const ex = exercises[currentIndex];
+            renderTimeline();
+
+            document.getElementById('exercise-title').innerText = ex.name;
+
+            let completedExCount = exercises.filter(e => e.status === 'completed' || e.status === 'skipped').length;
+            document.getElementById('current-index').innerText = (completedExCount + 1 > exercises.length) ? exercises.length : (completedExCount + 1);
+            document.getElementById('progress-bar').style.width = ((completedExCount / exercises.length) * 100) + '%';
+
+            document.getElementById('main-btn').style.display = 'none';
+            let cancelBtn = document.getElementById('cancel-ex-btn');
+            if (cancelBtn) cancelBtn.style.display = 'none';
+            document.getElementById('input-section').style.display = 'none';
+            document.getElementById('extra-set-prompt').style.display = 'none';
+
+            // تحديث الواجهة الجديدة
+            updateExerciseTargetUI();
+            updateSetProgressBar();
+        }
+
+        function startNagging(message, delay = 20000) { // التنبيه الافتراضي بقى 20 ثانية
             clearInterval(naggingInterval);
             naggingInterval = setInterval(() => {
                 playBeep(2, 200, 300); if (navigator.vibrate) navigator.vibrate([300, 200, 300]);
-                let btn = document.getElementById('main-btn'); let originalText = btn.innerHTML; let originalBg = btn.style.background;
-                btn.innerHTML = message; btn.style.background = "linear-gradient(45deg, #e53935, #ff9800)";
-                setTimeout(() => { btn.innerHTML = originalText; btn.style.background = originalBg; }, 4000);
-            }, 60000);
+                let btn = document.getElementById('main-btn');
+                if (btn) {
+                    let originalText = btn.innerHTML; let originalBg = btn.style.background;
+                    btn.innerHTML = message; btn.style.background = "linear-gradient(45deg, #e53935, #ff9800)";
+                    setTimeout(() => { btn.innerHTML = originalText; btn.style.background = originalBg; }, 4000);
+                }
+            }, delay);
         }
 
         function startSetPlaying() {
@@ -1075,21 +1247,20 @@
             let btn = document.getElementById('main-btn');
             btn.innerHTML = "عاش.. مستنيك يا بطل ⏳";
             btn.className = "action-btn btn-secondary";
-            btn.onclick = null; // تعطيل الضغط لمدة 5 ثواني
+            btn.onclick = null; // تعطيل الضغط لمدة 5 ثواني للاستعداد
 
             const teaseEl = document.getElementById('tease-text');
             teaseEl.innerText = motivations[Math.floor(Math.random() * motivations.length)];
             teaseEl.style.display = 'block';
 
-            // تأخير 5 ثواني
+            // 5 ثواني عشان تمسك البار أو تظبط قعدتك، وبعدها يبدأ يحسب الـ 20 ثانية
             setTimeout(() => {
                 btn.innerHTML = "خلصت؟ 👏";
                 btn.className = "action-btn btn-play";
                 btn.onclick = onFinishSetClick;
-                startNagging("مستنيك! لو خلصت دوس ⚠️");
+                startNagging("وقت المجموعة خلص! لو خلصت سجل ⚠️", 20000);
             }, 5000);
         }
-
         function onFinishSetClick() {
             clearInterval(naggingInterval); document.getElementById('tease-text').style.display = 'none';
             document.getElementById('main-btn').style.display = 'none'; showInputs(); startNagging("سجل الأرقام عشان تريح 📝⚠️");
@@ -1124,50 +1295,149 @@
 
         function confirmSetAndRest() {
             clearInterval(naggingInterval);
-            const w = document.getElementById('weight-input').value; const r = document.getElementById('reps-input').value;
-            if (!w || !r) { alert("أكتب الأرقام! 🤨"); return; }
-            currentExerciseData.weights.push(w); currentExerciseData.reps.push(r);
-            completedWorkoutSets++; updateRemainingTime();
-            let maxSets = parseInt(document.getElementById('max-sets').innerText);
+            const w = document.getElementById('weight-input').value;
+            const r = document.getElementById('reps-input').value;
+            if (!w || !r) { alert("أكتب الأرقام يا بطل! 🤨"); return; }
+
+            currentExerciseData.weights.push(w);
+            currentExerciseData.reps.push(r);
+            completedWorkoutSets++;
+
+            // الحل للإيرور: بنقرأ من المتغيرات مش من الـ HTML
+            let maxSets = exercises[currentIndex].targetSets;
+
             document.getElementById('input-section').style.display = 'none';
+            saveLocalState();
 
             if (currentSet < maxSets) {
-                saveLocalState();
-                startRestTimer(() => { currentSet++; document.getElementById('current-set').innerText = currentSet; saveLocalState(); resetUI(); });
+                startRestTimer(defaultRestTime, 'rest', () => {
+                    currentSet++;
+                    saveLocalState();
+                    resetUI();
+                    updateSetProgressBar(); // تحديث شريط التقدم
+                });
             } else {
-                saveLocalState();
-                startRestTimer(() => {
+                startRestTimer(defaultRestTime, 'rest', () => {
                     showExtraSetPrompt();
                 });
             }
         }
 
-        function startRestTimer(callback) {
-            currentRestCallback = callback; // حفظها عشان لو داس تخطي
-            const wrapper = document.getElementById('timer-wrapper'); const inner = document.getElementById('timer-inner');
-            document.getElementById('motivation-text').innerText = "خد نفسك.. وهنرجع 🔥"; document.getElementById('motivation-text').style.display = 'block';
+        function addExtraSet() {
+            clearInterval(naggingInterval);
+            document.getElementById('extra-set-prompt').style.display = 'none';
+
+            // بنزود التارجت في الذاكرة بدل الـ HTML
+            exercises[currentIndex].targetSets++;
+            totalWorkoutSets++;
+            updateRemainingTime();
+
+            currentSet++;
+            saveLocalState();
+            resetUI();
+            updateSetProgressBar(); // تحديث شريط التقدم
+        }
+
+        function proceedToNextExercise() {
+            clearInterval(naggingInterval);
+            document.getElementById('extra-set-prompt').style.display = 'none';
+
+            exercises[currentIndex].status = 'completed';
+
+            let maxTodayWeight = Math.max(...currentExerciseData.weights.map(Number));
+            let oldWArray = exercises[currentIndex].history.weight.split("-");
+            let oldMaxW = Math.max(...oldWArray.map(n => isNaN(n) ? 0 : Number(n)));
+            sessionSummary.push({ name: exercises[currentIndex].name, oldW: oldMaxW, newW: maxTodayWeight });
+
+            saveLocalState();
+            saveExerciseToSheetBackground();
+
+            let nextIndex = exercises.findIndex(ex => ex.status === 'pending');
+            if (nextIndex !== -1) {
+                currentIndex = nextIndex;
+                currentSet = 1;
+                currentExerciseData = { weights: [], reps: [] };
+
+                // تحديث واجهة المستخدم باسم التمرينة الجديدة قبل بدأ تايمر النقل
+                renderExerciseTransitionState();
+
+                // تشغيل تايمر النقل (30 ثانية) مع تمرير نوع 'transition'
+                startRestTimer(30, 'transition', () => {
+                    resetUI();
+                });
+                saveLocalState();
+            } else {
+                showFinalReport();
+            }
+        }
+
+
+        function startRestTimer(duration, type, callback) {
+            currentRestCallback = callback;
+            isRestingOrTransitioning = true;
+
+            const wrapper = document.getElementById('timer-wrapper');
+            const inner = document.getElementById('timer-inner');
+            const motivationText = document.getElementById('motivation-text');
+
+            // الواجهة بتتغير حسب إنت بتريح ولا بتنقل لجهاز تاني
+            if (type === 'transition') {
+                motivationText.innerText = "🏃‍♂️ اتحرك للجهاز اللي بعده.. وظبط وزنك";
+            } else {
+                motivationText.innerText = "😮‍💨 خد نفسك.. وهنرجع ندغدغ الحديد";
+            }
+
+            motivationText.style.display = 'block';
             wrapper.style.display = 'block';
-            timeLeft = defaultRestTime;
+
+            timeLeft = duration;
             inner.innerText = timeLeft;
 
             document.getElementById('timer-circle').style.background = `conic-gradient(var(--primary) 100%, #333 100%)`;
+
             countdown = setInterval(() => {
-                timeLeft--; inner.innerText = timeLeft; let pct = (timeLeft / defaultRestTime) * 100;
+                timeLeft--;
+                inner.innerText = timeLeft;
+
+                let pct = (timeLeft / duration) * 100;
                 document.getElementById('timer-circle').style.background = `conic-gradient(var(--primary) ${pct}%, #333 ${pct}%)`;
-                if (timeLeft <= 0) { clearInterval(countdown); finishRest(currentRestCallback); }
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    finishRest(false); // false = انتهى طبيعي بدون تخطي
+                }
             }, 1000);
         }
 
-        function finishRest(callback) {
-            document.getElementById('timer-wrapper').style.display = 'none'; document.getElementById('motivation-text').style.display = 'none';
-            playBeep(5, 300, 600); if (navigator.vibrate) navigator.vibrate([600, 200, 600, 200, 600, 200, 600, 200, 600]);
-            if (callback) callback();
+        function skipTimer() {
+            if (!isRestingOrTransitioning) return;
+
+            clearInterval(countdown);
+            if (navigator.vibrate) navigator.vibrate(100);
+
+            // الاحترافية هنا: خصم الثواني اللي عملتلها تخطي من الوقت الكلي المتبقي للجيم
+            if (globalWorkoutSeconds > timeLeft) {
+                globalWorkoutSeconds -= timeLeft;
+                renderGlobalTime();
+            }
+
+            finishRest(true); // true = اتعمل تخطي (عشان التنبيه الصوتي ميشتغلش)
         }
 
-        function skipTimer() {
-            clearInterval(countdown); if (navigator.vibrate) navigator.vibrate(100);
-            finishRest(currentRestCallback); // تنفيذ الدالة المحفوظة مباشرة
+        function finishRest(isSkipped) {
+            isRestingOrTransitioning = false;
+            document.getElementById('timer-wrapper').style.display = 'none';
+            document.getElementById('motivation-text').style.display = 'none';
+
+            // تشغيل التنبيه فقط لو الوقت خلص طبيعي
+            if (!isSkipped) {
+                playBeep(5, 300, 600);
+                if (navigator.vibrate) navigator.vibrate([600, 200, 600, 200, 600, 200, 600]);
+            }
+
+            if (currentRestCallback) currentRestCallback();
         }
+
 
         function showExtraSetPrompt() {
             document.getElementById('timer-wrapper').style.display = 'none';
@@ -1181,25 +1451,6 @@
             startNagging("ها يا وحش هندخل ع التمرينة اللي بعدها؟ 🚨");
         }
 
-        function proceedToNextExercise() {
-            clearInterval(naggingInterval);
-            document.getElementById('extra-set-prompt').style.display = 'none';
-
-            exercises[currentIndex].status = 'completed';
-            let maxTodayWeight = Math.max(...currentExerciseData.weights.map(Number));
-            let oldWArray = exercises[currentIndex].history.weight.split("-");
-            let oldMaxW = Math.max(...oldWArray.map(n => isNaN(n) ? 0 : Number(n)));
-            sessionSummary.push({ name: exercises[currentIndex].name, oldW: oldMaxW, newW: maxTodayWeight });
-
-            saveLocalState(); saveExerciseToSheetBackground();
-
-            let nextIndex = exercises.findIndex(ex => ex.status === 'pending');
-            if (nextIndex !== -1) {
-                currentIndex = nextIndex; currentSet = 1; currentExerciseData = { weights: [], reps: [] }; saveLocalState(); renderExercise();
-            } else {
-                showFinalReport();
-            }
-        }
 
         function addExtraSet() {
             clearInterval(naggingInterval);
@@ -1249,6 +1500,75 @@
 
             let btn = document.getElementById('main-btn'); btn.style.display = 'block'; btn.innerHTML = "ابدأ المجموعة 💪"; btn.className = "action-btn btn-primary"; btn.onclick = startSetPlaying;
             startNagging("أنت نمت ولا إيه؟ يلا! 🚨");
+        }
+
+        function updateExerciseTargetUI() {
+            const ex = exercises[currentIndex];
+
+            let historyWeightStr = String(ex.history.weight || "0");
+            let historyRepsStr = String(ex.history.reps || "0");
+
+            let oldMaxW = 0; let oldMaxR = 0;
+
+            // استخراج أعلى وزن من الشيت (حتى لو متسجل 15-18-18)
+            historyWeightStr.split("-").forEach(w => {
+                let val = Number(w.trim());
+                if (!isNaN(val) && val > oldMaxW) oldMaxW = val;
+            });
+
+            // استخراج أعلى عدة من الشيت (بيفهم الـ 3*15 والـ 10-15-15 زي الصورة بالظبط)
+            historyRepsStr.split("-").forEach(part => {
+                if (part.includes("*")) {
+                    let reps = Number(part.split("*")[1].trim()); // بياخد الرقم اللي بعد النجمة (العدات)
+                    if (!isNaN(reps) && reps > oldMaxR) oldMaxR = reps;
+                } else {
+                    let reps = Number(part.trim());
+                    if (!isNaN(reps) && reps > oldMaxR) oldMaxR = reps;
+                }
+            });
+
+            // أعلى رقم النهاردة في الجيم (عشان لو كسرت رقمك القديم يتحدث فوراً)
+            let currentMaxW = 0; let currentMaxR = 0;
+            if (currentExerciseData.weights.length > 0) {
+                for (let i = 0; i < currentExerciseData.weights.length; i++) {
+                    let w = Number(currentExerciseData.weights[i]);
+                    let r = Number(currentExerciseData.reps[i]);
+                    if (w >= currentMaxW) currentMaxW = w;
+                    if (r >= currentMaxR) currentMaxR = r;
+                }
+            }
+
+            // تحديد التارجت النهائي (الأكبر بين تاريخك والنهاردة)
+            let targetW = currentMaxW > oldMaxW ? currentMaxW : oldMaxW;
+            let targetR = currentMaxR > oldMaxR ? currentMaxR : oldMaxR;
+            if (targetR === 0) targetR = ex.targetReps; // لو مفيش داتا ياخد الديفولت
+
+            const badge = document.getElementById('dynamic-target-badge');
+
+            if (targetW > 0) {
+                badge.innerText = `الهدف: ${targetW} كجم × ${targetR} عدات 🎯`;
+            } else {
+                badge.innerText = `الهدف: ${targetR} عدات 🎯`;
+            }
+
+            // تأثير بصري لما تكسر رقمك النهاردة
+            if (currentMaxW > oldMaxW && oldMaxW > 0) {
+                badge.style.borderColor = "#4caf50";
+                badge.style.color = "#4caf50";
+                badge.innerText = `بطل! أعلى وزن: ${currentMaxW} كجم 🚀`;
+            } else {
+                badge.style.borderColor = "var(--primary)";
+                badge.style.color = "var(--primary)";
+            }
+        }
+        function updateSetProgressBar() {
+            const ex = exercises[currentIndex];
+            let maxSets = ex.targetSets;
+            // لو إنت في المجموعة الأولى، الشريط يبقى مليان لتلت مثلاً (أو حسب عدد المجموعات)
+            let fillPct = Math.min((currentSet / maxSets) * 100, 100);
+
+            document.getElementById('set-progress-bar').style.width = fillPct + '%';
+            document.getElementById('set-progress-text').innerText = `المجموعة ${currentSet <= maxSets ? currentSet : maxSets} من ${maxSets}`;
         }
     </script>
 </body>
