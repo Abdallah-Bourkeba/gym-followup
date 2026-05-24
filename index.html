@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -8,106 +9,636 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --card-bg: rgba(28, 28, 36, 0.9); --primary: #ff5722; 
-            --text-light: #ffffff; --text-muted: #a0a0a5; --success: #4caf50;
+            --card-bg: rgba(28, 28, 36, 0.9);
+            --primary: #ff5722;
+            --text-light: #ffffff;
+            --text-muted: #a0a0a5;
+            --success: #4caf50;
+            --danger: #f44336;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-        
-        html, body { overflow-x: hidden; width: 100vw; background: #0f0f13; }
-        body { 
-            color: var(--text-light); display: flex; flex-direction: column; align-items: center; 
-            min-height: 100vh; padding: 15px 10px 40px; 
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        html,
+        body {
+            overflow-x: hidden;
+            width: 100vw;
+            background: #0f0f13;
+        }
+
+        body {
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px 10px 40px;
             background: linear-gradient(-45deg, #0f0f13, #2a0800, #1c1c24, #1a0b0b);
-            background-size: 400% 400%; animation: gradientBG 15s ease infinite;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
-        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        .main-card { background-color: var(--card-bg); max-width: 500px; border-radius: 20px; padding: 25px 15px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.7); width: 100%; border: 1px solid rgba(255, 255, 255, 0.05);}
-        .category-title { color: #ffeb3b; font-size: 18px; font-weight: 700; margin-bottom: 5px; }
-        .exercise-title { font-size: 28px; font-weight: 900; margin-bottom: 20px; color: #fff;}
-        
-        .time-header { background: rgba(0,0,0,0.6); border: 1px solid var(--primary); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 15px; display: inline-flex; gap: 10px; align-items: center; }
-        .time-header span { color: var(--primary); font-size: 16px;}
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
 
-        .progress-wrapper { width: 100%; max-width: 500px; margin-bottom: 20px; }
-        .progress-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: var(--text-muted); margin-bottom: 8px; padding: 0 5px;}
-        .progress-container { width: 100%; background: #333; border-radius: 10px; height: 10px; overflow: hidden; }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, #ff5722, #ff9800); width: 0%; transition: width 0.6s ease; }
-        
-        .exercise-info { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .badge { padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: bold; border: 1px solid #444; background: rgba(0,0,0,0.4); }
-        .badge-target { color: var(--primary); border-color: var(--primary); }
+            50% {
+                background-position: 100% 50%;
+            }
 
-        .timer-wrapper { position: relative; width: 150px; height: 150px; margin: 0 auto 15px; display: none; }
-        .timer-circle { width: 100%; height: 100%; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; }
-        .timer-inner { width: 130px; height: 130px; background: var(--card-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; color: var(--primary); cursor: pointer; user-select: none; }
-        
-        .tease-text { color: #00bcd4; font-size: 22px; font-weight: 900; margin: 20px 0; display: none; animation: popIn 0.5s, pulseText 1.5s infinite alternate; }
-        .motivation-text { color: #ffeb3b; font-size: 18px; font-weight: 900; margin-bottom: 20px; display: none;}
-        @keyframes pulseText { from { transform: scale(1); opacity: 0.9;} to { transform: scale(1.05); opacity: 1;} }
-        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
 
-        .input-section { display: none; margin-bottom: 15px; animation: slideUp 0.4s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
-        .input-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
-        .input-group { display: flex; flex-direction: column; width: 48%; }
-        .input-group label { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; font-weight: bold;}
-        .input-group input { background: rgba(0,0,0,0.5); border: 2px solid #555; border-radius: 12px; color: #fff; padding: 12px; font-size: 20px; font-weight: 900; text-align: center; outline: none; }
+        /* أزرار وإعدادات */
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
 
-        .action-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
-        .btn-primary { background: linear-gradient(45deg, var(--primary), #ff9800); color: #fff; }
-        .btn-success { background: linear-gradient(45deg, #2e7d32, #4caf50); color: #fff; }
-        .btn-play { background: linear-gradient(45deg, #00bcd4, #0288d1); color: #fff; }
-        .btn-secondary { background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid #555; }
-        .btn-dash { background: linear-gradient(45deg, #673ab7, #9c27b0); color: #fff; border: 1px solid #e1bee7;}
-        .btn-select { background: rgba(0,0,0,0.5); color: #ffeb3b; border: 1px dashed #ffeb3b; margin-top: 5px; }
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #444;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+            transition: 0.3s;
+        }
 
-        .welcome-screen { text-align: center; width: 100%; max-width: 500px; animation: fadeIn 0.6s ease; }
-        .welcome-box { background: var(--card-bg); padding: 25px 15px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);}
-        
-        .dashboard-screen { display: none; width: 100%; max-width: 500px; animation: slideUp 0.5s ease; }
-        .stats-cards { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-        .stat-card { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; padding: 15px; width: 48%; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);}
-        .stat-card h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
-        .stat-card span { font-size: 24px; font-weight: bold; color: #ffeb3b; text-shadow: 0 0 10px rgba(255,235,59,0.4);}
-        
-        .dash-category-box { background: rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; overflow: hidden;}
-        .dash-cat-header { background: rgba(255, 87, 34, 0.1); color: var(--primary); padding: 10px; font-weight: bold; font-size: 15px; border-bottom: 1px solid #333; text-align: right;}
-        .dash-item { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #222; font-size: 13px;}
-        
-        /* 📈 قسم الرسم البياني 📈 */
-        .chart-container { background: rgba(0,0,0,0.5); border-radius: 15px; padding: 15px; margin: 15px 0; border: 1px solid #444; height: 300px; width: 100%; }
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
-        .select-list { display: none; flex-direction: column; gap: 10px; margin-top: 20px; }
-        
-        .rating-box { background: rgba(76, 175, 80, 0.1); border: 1px solid var(--success); border-radius: 15px; padding: 15px; margin: 20px 0; }
-        .rating-score { font-size: 35px; font-weight: 900; color: var(--success); text-shadow: 0 0 15px rgba(76, 175, 80, 0.5); }
-        .trend-up { color: #4caf50; font-weight: bold; }
-        .trend-flat { color: #ffeb3b; font-weight: bold; }
-        
-        .reset-btn { background: transparent; border: none; color: #a0a0a5; text-decoration: underline; font-size: 12px; cursor: pointer; margin-bottom: 15px; }
-        .hide { display: none !important; }
+        /* Modal الإعدادات */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #444;
+            text-align: center;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #555;
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* شريط التمارين الأفقي */
+        .exercise-timeline {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            width: 100%;
+            max-width: 500px;
+            scroll-behavior: smooth;
+        }
+
+        .exercise-timeline::-webkit-scrollbar {
+            height: 5px;
+        }
+
+        .exercise-timeline::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .exercise-timeline::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .timeline-item {
+            padding: 8px 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #444;
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+
+        .timeline-item.active {
+            background: rgba(255, 87, 34, 0.2);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .timeline-item.completed {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .timeline-item.skipped {
+            background: rgba(244, 67, 54, 0.1);
+            border-color: var(--danger);
+            color: var(--danger);
+            text-decoration: line-through;
+        }
+
+        .main-card {
+            position: relative;
+            background-color: var(--card-bg);
+            max-width: 500px;
+            border-radius: 20px;
+            padding: 25px 15px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .category-title {
+            color: #ffeb3b;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .exercise-title {
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .time-header {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--primary);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: inline-flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .time-header span {
+            color: var(--primary);
+            font-size: 16px;
+        }
+
+        .progress-wrapper {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            padding: 0 5px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background: #333;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff5722, #ff9800);
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+
+        .exercise-info {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid #444;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .badge-target {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .timer-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 15px;
+            display: none;
+        }
+
+        .timer-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-inner {
+            width: 130px;
+            height: 130px;
+            background: var(--card-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--primary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .btn-cancel-small {
+            position: absolute;
+            top: 0;
+            background: transparent;
+            color: var(--danger);
+            border: 1px dashed var(--danger);
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 5px;
+            width: fit-content;
+        }
+
+        .btn-cancel-small:hover {
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .tease-text {
+            color: #00bcd4;
+            font-size: 22px;
+            font-weight: 900;
+            margin: 20px 0;
+            display: none;
+            animation: popIn 0.5s, pulseText 1.5s infinite alternate;
+        }
+
+        .motivation-text {
+            color: #ffeb3b;
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @keyframes pulseText {
+            from {
+                transform: scale(1);
+                opacity: 0.9;
+            }
+
+            to {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .input-section {
+            display: none;
+            margin-bottom: 15px;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            width: 48%;
+        }
+
+        .input-group label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #555;
+            border-radius: 12px;
+            color: #fff;
+            padding: 12px;
+            font-size: 20px;
+            font-weight: 900;
+            text-align: center;
+            outline: none;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), #ff9800);
+            color: #fff;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #2e7d32, #4caf50);
+            color: #fff;
+        }
+
+        .btn-play {
+            background: linear-gradient(45deg, #00bcd4, #0288d1);
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #d32f2f, #f44336);
+            color: #fff;
+            border: 1px solid #b71c1c;
+            margin-top: 10px;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid #555;
+        }
+
+        .btn-dash {
+            background: linear-gradient(45deg, #673ab7, #9c27b0);
+            color: #fff;
+            border: 1px solid #e1bee7;
+        }
+
+        .btn-select {
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffeb3b;
+            border: 1px dashed #ffeb3b;
+            margin-top: 5px;
+        }
+
+        .welcome-screen {
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .welcome-box {
+            background: var(--card-bg);
+            padding: 25px 15px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .dashboard-screen {
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            animation: slideUp 0.5s ease;
+        }
+
+        .stats-cards {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 15px;
+            width: 48%;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .stat-card h4 {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .stat-card span {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffeb3b;
+            text-shadow: 0 0 10px rgba(255, 235, 59, 0.4);
+        }
+
+        .dash-category-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+
+        .dash-cat-header {
+            background: rgba(255, 87, 34, 0.1);
+            color: var(--primary);
+            padding: 10px;
+            font-weight: bold;
+            font-size: 15px;
+            border-bottom: 1px solid #333;
+            text-align: right;
+        }
+
+        .chart-container {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #444;
+            height: 300px;
+            width: 100%;
+        }
+
+        .select-list {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .rating-box {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .rating-score {
+            font-size: 35px;
+            font-weight: 900;
+            color: var(--success);
+            text-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+
+        .trend-up {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .trend-flat {
+            color: #ffeb3b;
+            font-weight: bold;
+        }
+
+        .reset-btn {
+            background: transparent;
+            border: none;
+            color: #a0a0a5;
+            text-decoration: underline;
+            font-size: 12px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .hide {
+            display: none !important;
+        }
     </style>
 </head>
+
 <body>
 
     <div id="loading" style="text-align:center; margin-top:30vh;">
         <h2 style="font-size: 24px;">بيسخن الكابتن... ⏳🏋️‍♂️</h2>
     </div>
 
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #fff; margin-bottom: 15px; font-size: 22px;">الإعدادات ⚙️</h3>
+            <div style="text-align: right; margin-bottom: 20px;">
+                <label style="color: var(--text-muted); font-size: 14px;">وقت الراحة الافتراضي (ثواني):</label>
+                <input type="number" id="rest-time-input" min="10" max="300">
+            </div>
+            <button class="action-btn btn-success" onclick="saveSettings()">حفظ التعديلات ✅</button>
+            <button class="action-btn btn-secondary" onclick="closeSettings()">إلغاء</button>
+        </div>
+    </div>
+
     <div id="welcome-screen" class="welcome-screen" style="display: none;">
         <div class="welcome-box">
             <h2 style="margin-bottom: 20px; font-weight: 900; font-size: 26px;">يا هلا بالوحش! 🦍🔥</h2>
-            
+
             <button class="action-btn btn-dash" onclick="openDashboard()">📊 لوحة الإحصائيات الشاملة</button>
             <hr style="border:0; border-top:1px dashed #444; margin: 20px 0;">
 
-            <p style="color: var(--text-muted); margin-bottom: 10px; font-size: 14px;">التمرينة المقترحة ليك النهاردة:</p>
-            <div class="badge" style="color: #ffeb3b; border-color: #ffeb3b; font-size: 22px; margin-bottom: 25px; background: rgba(255,235,59,0.1);" id="lbl-suggested-workout">--</div>
-            
-            <button class="action-btn btn-success" onclick="confirmWorkout(activeCategory)">جاهز، يلا بينا نفورم! 🚀</button>
-            <button class="action-btn btn-secondary" onclick="toggleSelectionList()">لا، هلعب عضلة تانية النهاردة 🔄</button>
-            
+            <p style="color: var(--text-muted); margin-bottom: 10px; font-size: 14px;">التمرينة المقترحة ليك النهاردة:
+            </p>
+            <div class="badge"
+                style="color: #ffeb3b; border-color: #ffeb3b; font-size: 22px; margin-bottom: 25px; background: rgba(255,235,59,0.1);"
+                id="lbl-suggested-workout">--</div>
+
+            <button class="action-btn btn-success" onclick="confirmWorkout(activeCategory)">جاهز، يلا بينا نفورم!
+                🚀</button>
+            <button class="action-btn btn-secondary" onclick="toggleSelectionList()">لا، هلعب عضلة تانية النهاردة
+                🔄</button>
+
             <div id="select-list" class="select-list"></div>
         </div>
     </div>
@@ -115,42 +646,61 @@
     <div id="dashboard-screen" class="dashboard-screen">
         <div class="main-card" style="padding-top: 15px;">
             <h2 style="color: #fff; margin-bottom: 20px;">لوحة الأبطال 🏆</h2>
-            
+
             <div class="stats-cards">
-                <div class="stat-card"><h4>تمرين الشهر ده</h4><span id="stat-month">0</span> 📅</div>
-                <div class="stat-card"><h4>تمرين السنة دي</h4><span id="stat-year">0</span> 🥇</div>
+                <div class="stat-card">
+                    <h4>تمرين الشهر ده</h4><span id="stat-month">0</span> 📅
+                </div>
+                <div class="stat-card">
+                    <h4>تمرين السنة دي</h4><span id="stat-year">0</span> 🥇
+                </div>
             </div>
 
-            <h3 style="color: #00bcd4; font-size: 16px; margin: 20px 0 10px; text-align: right;">📈 التطور الزمني لأوزانك الأساسية:</h3>
+            <h3 style="color: #00bcd4; font-size: 16px; margin: 20px 0 10px; text-align: right;">📈 التطور الزمني
+                لأوزانك الأساسية:</h3>
             <div class="chart-container">
                 <canvas id="progressChart"></canvas>
             </div>
 
-            <h3 style="color: var(--primary); font-size: 16px; margin: 20px 0 10px; text-align: right;">🏋️ أوزانك الحالية في كل العضلات:</h3>
+            <h3 style="color: var(--primary); font-size: 16px; margin: 20px 0 10px; text-align: right;">🏋️ أوزانك
+                الحالية في كل العضلات:</h3>
             <div id="dashboard-full-stats" style="max-height: 40vh; overflow-y: auto; padding-right: 5px;"></div>
 
-            <button class="action-btn btn-secondary" style="margin-top: 20px;" onclick="closeDashboard()">⬅️ رجوع للصفحة الرئيسية</button>
+            <button class="action-btn btn-secondary" style="margin-top: 20px;" onclick="closeDashboard()">⬅️ رجوع للصفحة
+                الرئيسية</button>
         </div>
     </div>
 
     <div id="app-content" style="display: none; width: 100%; flex-direction: column; align-items: center;">
-        <button class="reset-btn" onclick="resetWorkoutSession()">🔄 متلخبط؟ الغي التمرينة وابدأ من الصفر</button>
+
+        <div class="header-actions">
+            <button class="icon-btn" onclick="openSettings()">⚙️</button>
+            <button class="reset-btn" style="margin: 0;" onclick="resetWorkoutSession()">🔄 الغي التمرينة من
+                الصفر</button>
+        </div>
+
         <div class="time-header">⏳ متبقي للجيم: <span id="time-left">--</span> دقيقة</div>
-        
+
         <div class="progress-wrapper">
             <div class="progress-header">
                 <span>رحلة النهاردة 🛤️</span>
-                <span>خلصنا <span class="highlight" id="current-index">1</span> من <span class="highlight" id="total-exercises">5</span> تمارين</span>
+                <span>خلصنا <span class="highlight" id="current-index">1</span> من <span class="highlight"
+                        id="total-exercises">5</span> تمارين</span>
             </div>
-            <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
         </div>
+
+        <div id="exercise-timeline" class="exercise-timeline"></div>
 
         <div class="main-card" id="workout-card">
             <div class="category-title" id="exercise-category">--</div>
             <h1 id="exercise-title" class="exercise-title">اسم التمرين</h1>
-            
+
             <div class="exercise-info">
-                <span class="badge" style="color: #00bcd4; border-color: #00bcd4;">مجموعة: <span id="current-set">1</span> / <span id="max-sets">3</span> 🔄</span>
+                <span class="badge" style="color: #00bcd4; border-color: #00bcd4;">مجموعة: <span
+                        id="current-set">1</span> / <span id="max-sets">3</span> 🔄</span>
                 <span class="badge badge-target">تارجت: <span id="target-reps">10</span> عدات 🎯</span>
             </div>
 
@@ -163,26 +713,43 @@
                     <div class="input-group"><label>الوزن (كجم) 🏋️</label><input type="number" id="weight-input"></div>
                     <div class="input-group"><label>العدات 🔢</label><input type="number" id="reps-input"></div>
                 </div>
-                <button id="log-set-btn" class="action-btn btn-success" onclick="confirmSetAndRest()">تأكيد وابدأ الراحة ⏱️✅</button>
-                <button id="extra-set-btn" class="action-btn btn-select" onclick="addExtraSet()">لسه فيا حيل! زود مجموعة ➕💪</button>
+                <button id="log-set-btn" class="action-btn btn-success" onclick="confirmSetAndRest()">تأكيد وابدأ الراحة
+                    ⏱️✅</button>
+            </div>
+
+            <div id="extra-set-prompt" style="display: none; animation: slideUp 0.4s ease; margin-bottom: 15px;">
+                <h3 style="color: #ffeb3b; margin-bottom: 15px; font-size: 18px;">الراحة خلصت! وحش 💪</h3>
+                <button class="action-btn btn-success" onclick="proceedToNextExercise()">ادخل ع التمرينة اللي بعدها
+                    ➡️</button>
+                <button class="action-btn btn-select" onclick="addExtraSet()">لسه فيا حيل! زود مجموعة ➕</button>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; width: 100%; padding-top: 10px;">
+                <button id="cancel-ex-btn" class="btn-cancel-small" onclick="skipCurrentExercise()">🚫 مش هلعبها (تسجيل
+                    0)</button>
             </div>
 
             <div id="timer-wrapper" class="timer-wrapper">
-                <div id="timer-circle" class="timer-circle"><div id="timer-inner" class="timer-inner" onclick="skipTimer()">60</div></div>
+                <div id="timer-circle" class="timer-circle">
+                    <div id="timer-inner" class="timer-inner" onclick="skipTimer()">60</div>
+                </div>
             </div>
             <div id="motivation-text" class="motivation-text"></div>
         </div>
 
         <div class="main-card hide" id="summary-card" style="animation: slideUp 0.5s ease;">
-            <h1 style="color: var(--success); font-size: 35px; text-shadow: 0 0 15px rgba(76,175,80,0.5);">تم يا وحش! 🏆</h1>
+            <h1 style="color: var(--success); font-size: 35px; text-shadow: 0 0 15px rgba(76,175,80,0.5);">تم يا وحش! 🏆
+            </h1>
             <div class="rating-box">
                 <h3 style="color: #fff; margin-bottom: 5px;">تقييم أداءك النهاردة</h3>
                 <div class="rating-score" id="final-rating">10/10</div>
                 <p style="color: var(--text-muted); font-size: 14px;" id="rating-msg">عاش يا بطل، كسرت أرقامك!</p>
             </div>
-            
-            <div style="background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin: 15px 0; text-align: right; border: 1px solid #333;">
-                <div style="font-size: 14px; font-weight: bold; color: var(--primary); margin-bottom: 10px; text-align: center; border-bottom: 1px dashed #555; padding-bottom: 10px;">
+
+            <div
+                style="background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin: 15px 0; text-align: right; border: 1px solid #333;">
+                <div
+                    style="font-size: 14px; font-weight: bold; color: var(--primary); margin-bottom: 10px; text-align: center; border-bottom: 1px dashed #555; padding-bottom: 10px;">
                     📈 مقارنة التمرينة (المرة اللي فاتت ⬅️ النهاردة)
                 </div>
                 <div id="summary-stats"></div>
@@ -192,21 +759,24 @@
     </div>
 
     <script>
-        // ============== 🔴 ضع رابط الـ Web App الخاص بك هنا 🔴 ==============
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzedIIPIAMVs9iRafPv6Q7JAaWsd8fGaAs1SDVMWlhMFw-Lj3fvZoZRXJ18LahySyNn/exec"; 
-        // ======================================================================
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRXUybB54-vmGRvS3BZDud2MAtqIpa6BFf7j5icrZw7Nbpksppi963zkmY45u9axgz/exec";
 
         const motivations = ["شايفك 👀.. دغدغ الحديد 💥", "عاش يا دبابة! 🦍", "هات آخرك، الوجع ده هو النتيجة 💯"];
-        
+
         let backendData = {}; let exercises = [];
         let currentIndex = 0; let currentSet = 1; let currentExerciseData = { weights: [], reps: [] };
-        let totalWorkoutSets = 0; let completedWorkoutSets = 0; let countdown; let timeLeft = 60;
-        let activeCategory = ""; let sessionSummary = []; 
-        let audioCtx; let naggingInterval; let progressChartInstance = null; // Chart Instance
+        let totalWorkoutSets = 0; let completedWorkoutSets = 0; let countdown;
+
+        let defaultRestTime = parseInt(localStorage.getItem('gymRestTime')) || 60;
+        let timeLeft = defaultRestTime;
+        let currentRestCallback = null; // تخزين الـ Callback بتاع الراحة
+
+        let activeCategory = ""; let sessionSummary = [];
+        let audioCtx; let naggingInterval; let progressChartInstance = null;
 
         const getTodayDate = () => {
             const today = new Date(); const offset = today.getTimezoneOffset();
-            return new Date(today.getTime() - (offset*60*1000)).toISOString().split('T')[0];
+            return new Date(today.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
         };
 
         function initAudio() {
@@ -220,10 +790,17 @@
                 let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.type = "sine"; osc.frequency.value = 850; osc.start();
-                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration/1000);
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration / 1000);
                 setTimeout(() => osc.stop(), duration);
                 i++; if (i < times) setTimeout(play, interval);
             }; play();
+        }
+
+        function openSettings() { document.getElementById('rest-time-input').value = defaultRestTime; document.getElementById('settings-modal').style.display = 'flex'; }
+        function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+        function saveSettings() {
+            let newVal = document.getElementById('rest-time-input').value;
+            if (newVal && newVal >= 10) { defaultRestTime = parseInt(newVal); localStorage.setItem('gymRestTime', defaultRestTime); closeSettings(); }
         }
 
         function saveLocalState() {
@@ -235,7 +812,7 @@
             }));
         }
         function clearLocalState() { localStorage.removeItem('gymPartnerState'); }
-        function resetWorkoutSession() { if(confirm("متأكد هتلغي التمرينة؟")) { clearLocalState(); location.reload(); } }
+        function resetWorkoutSession() { if (confirm("متأكد هتلغي التمرينة وتبدأ من الصفر؟")) { clearLocalState(); location.reload(); } }
 
         window.onload = async () => {
             try {
@@ -248,9 +825,9 @@
                         hasSavedState = true;
                         activeCategory = savedState.activeCategory; exercises = savedState.exercises;
                         currentIndex = savedState.currentIndex; currentSet = savedState.currentSet;
-                        currentExerciseData = savedState.currentExerciseData; completedWorkoutSets = savedState.completedWorkoutSets; 
+                        currentExerciseData = savedState.currentExerciseData; completedWorkoutSets = savedState.completedWorkoutSets;
                         totalWorkoutSets = savedState.totalWorkoutSets; sessionSummary = savedState.sessionSummary || [];
-                        
+
                         document.getElementById('loading').style.display = 'none';
                         document.getElementById('app-content').style.display = 'flex';
                         updateRemainingTime(); renderExercise();
@@ -259,93 +836,78 @@
 
                 const response = await fetch(WEB_APP_URL);
                 backendData = await response.json();
-                
+
                 if (!hasSavedState) {
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('welcome-screen').style.display = 'block';
-                    
+
                     document.getElementById('stat-month').innerText = backendData.stats.month;
                     document.getElementById('stat-year').innerText = backendData.stats.year;
 
                     activeCategory = backendData.suggestedCategory;
                     document.getElementById('lbl-suggested-workout').innerText = "💪 " + activeCategory;
-                    
-                    buildFullDashboard(); 
-                    
+
+                    buildFullDashboard();
+
                     const listContainer = document.getElementById('select-list');
                     backendData.rotation.forEach(cat => {
                         let btn = document.createElement('button');
                         btn.className = "action-btn btn-select"; btn.innerText = cat + " 🏋️‍♂️";
-                        btn.onclick = () => {
-                            activeCategory = cat; document.getElementById('lbl-suggested-workout').innerText = "💪 " + cat; toggleSelectionList();
-                        };
+                        btn.onclick = () => { activeCategory = cat; document.getElementById('lbl-suggested-workout').innerText = "💪 " + cat; toggleSelectionList(); };
                         listContainer.appendChild(btn);
                     });
                 }
             } catch (error) { document.getElementById('loading').innerHTML = "<h2 style='color:#ff5722;'>النت فصل يا وحش ❌</h2>"; }
         };
 
-        // 📈 دالة رسم الـ Chart.js
         function renderProgressChart() {
             const ctx = document.getElementById('progressChart').getContext('2d');
             const hData = backendData.historyData;
-            if(!hData || Object.keys(hData).length === 0) return;
+            if (!hData || Object.keys(hData).length === 0) return;
 
-            // تجميع التواريخ وترتيبها
             let allDates = new Set();
-            for(let ex in hData) { hData[ex].forEach(d => allDates.add(d.date)); }
-            let sortedDates = Array.from(allDates).sort((a,b) => new Date(a) - new Date(b));
+            for (let ex in hData) { hData[ex].forEach(d => allDates.add(d.date)); }
+            let sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
 
             const colors = ['#ff5722', '#00bcd4', '#4caf50', '#ffeb3b', '#9c27b0'];
             let datasets = []; let colorIndex = 0;
 
-            for(let ex in hData) {
-                if(hData[ex].length === 0) continue;
+            for (let ex in hData) {
+                if (hData[ex].length === 0) continue;
                 let dataPoints = sortedDates.map(date => {
                     let record = hData[ex].find(d => d.date === date);
                     return record ? record.weight : null;
                 });
                 datasets.push({
-                    label: ex, data: dataPoints,
-                    borderColor: colors[colorIndex % colors.length],
-                    backgroundColor: colors[colorIndex % colors.length] + '33',
-                    borderWidth: 2, pointRadius: 4, pointHoverRadius: 6,
+                    label: ex, data: dataPoints, borderColor: colors[colorIndex % colors.length],
+                    backgroundColor: colors[colorIndex % colors.length] + '33', borderWidth: 2, pointRadius: 4, pointHoverRadius: 6,
                     tension: 0.3, spanGaps: true
                 });
                 colorIndex++;
             }
 
-            if(progressChartInstance) progressChartInstance.destroy(); // لمسح القديم لو موجود
-
+            if (progressChartInstance) progressChartInstance.destroy();
             Chart.defaults.font.family = 'Cairo';
             progressChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: { labels: sortedDates, datasets: datasets },
+                type: 'line', data: { labels: sortedDates, datasets: datasets },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { labels: { color: '#fff', font: {size: 12} } },
-                        tooltip: { mode: 'index', intersect: false }
-                    },
-                    scales: {
-                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0a5', maxTicksLimit: 5 } },
-                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#a0a0a5' } }
-                    },
+                    plugins: { legend: { labels: { color: '#fff', font: { size: 12 } } }, tooltip: { mode: 'index', intersect: false } },
+                    scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0a5', maxTicksLimit: 5 } }, y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#a0a0a5' } } },
                     interaction: { mode: 'nearest', axis: 'x', intersect: false }
                 }
             });
         }
 
         function buildFullDashboard() {
-            const container = document.getElementById('dashboard-full-stats');
-            container.innerHTML = '';
+            const container = document.getElementById('dashboard-full-stats'); container.innerHTML = '';
             backendData.rotation.forEach(cat => {
                 const exList = backendData.categoriesMap[cat] || [];
-                if(exList.length === 0) return;
+                if (exList.length === 0) return;
                 let html = `<div class="dash-category-box"><div class="dash-cat-header">📌 ${cat}</div>`;
                 exList.forEach(ex => {
                     let lastWs = ex.history.weight.split("-"); let cleanW = lastWs[lastWs.length - 1];
-                    if(cleanW !== "--") {
+                    if (cleanW !== "--") {
                         html += `<div style="display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid #222; font-size:13px;">
                                     <span style="color:#fff; font-weight:bold; width:45%; text-align:right;">${ex.name}</span>
                                     <span style="color:var(--text-muted);">⚖️ ${cleanW} كجم | 🔢 ${ex.history.reps.split("-")[0]} ع</span>
@@ -356,25 +918,17 @@
             });
         }
 
-        function openDashboard() {
-            document.getElementById('welcome-screen').style.display = 'none';
-            document.getElementById('dashboard-screen').style.display = 'block';
-            setTimeout(renderProgressChart, 100); // نرسمه بعد ما الشاشة تفتح عشان ياخد المقاس صح
-        }
-        function closeDashboard() {
-            document.getElementById('dashboard-screen').style.display = 'none';
-            document.getElementById('welcome-screen').style.display = 'block';
-        }
-
-        function toggleSelectionList() {
-            const list = document.getElementById('select-list');
-            list.style.display = list.style.display === 'flex' ? 'none' : 'flex';
-        }
+        function openDashboard() { document.getElementById('welcome-screen').style.display = 'none'; document.getElementById('dashboard-screen').style.display = 'block'; setTimeout(renderProgressChart, 100); }
+        function closeDashboard() { document.getElementById('dashboard-screen').style.display = 'none'; document.getElementById('welcome-screen').style.display = 'block'; }
+        function toggleSelectionList() { const list = document.getElementById('select-list'); list.style.display = list.style.display === 'flex' ? 'none' : 'flex'; }
 
         function confirmWorkout(selectedCategory) {
-            initAudio(); activeCategory = selectedCategory; 
+            initAudio(); activeCategory = selectedCategory;
             exercises = backendData.categoriesMap[selectedCategory] || [];
-            if(exercises.length === 0) return;
+            if (exercises.length === 0) return;
+
+            exercises.forEach(ex => ex.status = 'pending');
+
             document.getElementById('welcome-screen').style.display = 'none'; document.getElementById('app-content').style.display = 'flex';
             totalWorkoutSets = exercises.reduce((sum, ex) => sum + ex.targetSets, 0);
             sessionSummary = []; saveLocalState(); updateRemainingTime(); renderExercise();
@@ -382,132 +936,254 @@
 
         function updateRemainingTime() {
             let remainingSets = totalWorkoutSets - completedWorkoutSets;
-            document.getElementById('time-left').innerText = Math.max(0, Math.ceil(remainingSets * 1.5));
+            document.getElementById('time-left').innerText = Math.max(0, Math.ceil(remainingSets * (defaultRestTime / 60 + 0.5)));
             document.getElementById('total-exercises').innerText = exercises.length;
+        }
+
+        function renderTimeline() {
+            const timeline = document.getElementById('exercise-timeline'); timeline.innerHTML = '';
+            exercises.forEach((ex, idx) => {
+                let btn = document.createElement('div');
+                btn.className = `timeline-item ${ex.status === 'completed' ? 'completed' : ex.status === 'skipped' ? 'skipped' : (idx === currentIndex ? 'active' : '')}`;
+                btn.innerText = ex.name;
+
+                // لو خلص التمرينة يقفلها وميرجعش ليها
+                if (ex.status === 'completed' || ex.status === 'skipped') {
+                    btn.style.cursor = 'not-allowed';
+                    btn.onclick = () => alert('التمرينة دي خلصت يا بطل، ركز في اللي جاي! 🦍');
+                } else {
+                    btn.onclick = () => jumpToExercise(idx);
+                }
+                timeline.appendChild(btn);
+            });
+            let activeEl = timeline.querySelector('.active');
+            if (activeEl) { activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+        }
+
+        function jumpToExercise(targetIndex) {
+            if (targetIndex === currentIndex || exercises[targetIndex].status === 'completed' || exercises[targetIndex].status === 'skipped') return;
+            if (currentSet > 1 || currentExerciseData.weights.length > 0) {
+                alert('عشان تعزل لجهاز تاني، لازم تخلص التمرينة اللي في إيدك الأول (أو تلغيها من زرار الإلغاء تحت) 🛑'); return;
+            }
+            currentIndex = targetIndex; currentSet = 1; currentExerciseData = { weights: [], reps: [] };
+            saveLocalState(); renderExercise();
+        }
+
+        async function skipCurrentExercise() {
+            if (confirm("متأكد إنك عايز تلغي التمرينة دي وتتسجل 0 في الشيت؟ 🚫")) {
+                exercises[currentIndex].status = 'skipped';
+                let remainingSetsForThis = exercises[currentIndex].targetSets - (currentSet - 1);
+                completedWorkoutSets += remainingSetsForThis;
+
+                try {
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST', body: JSON.stringify({ date: getTodayDate(), category: activeCategory, exerciseName: exercises[currentIndex].name, weight: "0", reps: "0" })
+                    });
+                } catch (error) { console.error("فشل تسجيل الإلغاء في الشيت", error); }
+
+                saveLocalState();
+                let nextIndex = exercises.findIndex(ex => ex.status === 'pending');
+                if (nextIndex !== -1) {
+                    currentIndex = nextIndex; currentSet = 1; currentExerciseData = { weights: [], reps: [] };
+                    saveLocalState(); renderExercise();
+                } else { showFinalReport(); }
+            }
         }
 
         function renderExercise() {
             const ex = exercises[currentIndex];
             if (currentExerciseData.reps.length === 0 && currentSet === 1) { currentExerciseData = { weights: [], reps: [] }; }
+
+            renderTimeline();
+
             document.getElementById('exercise-category').innerText = "📌 " + activeCategory;
             document.getElementById('exercise-title').innerText = ex.name; document.getElementById('current-set').innerText = currentSet;
             document.getElementById('max-sets').innerText = ex.targetSets; document.getElementById('target-reps').innerText = ex.targetReps;
-            document.getElementById('current-index').innerText = currentIndex + 1;
-            document.getElementById('progress-bar').style.width = ((currentIndex / exercises.length) * 100) + '%';
-            resetUI();
+
+            let completedExCount = exercises.filter(e => e.status === 'completed' || e.status === 'skipped').length;
+            document.getElementById('current-index').innerText = (completedExCount + 1 > exercises.length) ? exercises.length : (completedExCount + 1);
+            document.getElementById('progress-bar').style.width = ((completedExCount / exercises.length) * 100) + '%';
+            document.getElementById('cancel-ex-btn').style.display = (ex.status === 'completed') ? 'none' : 'block';
+
+            // لو اليوزر عمل ريفريش وكان مخلص أخر مجموعة، يعرضله شاشة الاختيار
+            if (currentExerciseData.weights.length >= ex.targetSets && currentSet >= ex.targetSets) {
+                showExtraSetPrompt();
+            } else {
+                resetUI();
+            }
         }
 
         function startNagging(message) {
             clearInterval(naggingInterval);
             naggingInterval = setInterval(() => {
-                playBeep(2, 200, 300); if(navigator.vibrate) navigator.vibrate([300, 200, 300]);
+                playBeep(2, 200, 300); if (navigator.vibrate) navigator.vibrate([300, 200, 300]);
                 let btn = document.getElementById('main-btn'); let originalText = btn.innerHTML; let originalBg = btn.style.background;
                 btn.innerHTML = message; btn.style.background = "linear-gradient(45deg, #e53935, #ff9800)";
                 setTimeout(() => { btn.innerHTML = originalText; btn.style.background = originalBg; }, 4000);
-            }, 60000); 
+            }, 60000);
         }
 
         function startSetPlaying() {
-            initAudio(); clearInterval(naggingInterval); 
-            let btn = document.getElementById('main-btn'); btn.innerHTML = "خلصت؟ 👏"; btn.className = "action-btn btn-play"; btn.onclick = onFinishSetClick;
-            const teaseEl = document.getElementById('tease-text'); teaseEl.innerText = motivations[Math.floor(Math.random() * motivations.length)];
-            teaseEl.style.display = 'block'; startNagging("مستنيك! لو خلصت دوس ⚠️");
+            initAudio(); clearInterval(naggingInterval);
+            document.getElementById('cancel-ex-btn').style.display = 'none';
+
+            let btn = document.getElementById('main-btn');
+            btn.innerHTML = "عاش.. مستنيك يا بطل ⏳";
+            btn.className = "action-btn btn-secondary";
+            btn.onclick = null; // تعطيل الضغط لمدة 5 ثواني
+
+            const teaseEl = document.getElementById('tease-text');
+            teaseEl.innerText = motivations[Math.floor(Math.random() * motivations.length)];
+            teaseEl.style.display = 'block';
+
+            // تأخير 5 ثواني
+            setTimeout(() => {
+                btn.innerHTML = "خلصت؟ 👏";
+                btn.className = "action-btn btn-play";
+                btn.onclick = onFinishSetClick;
+                startNagging("مستنيك! لو خلصت دوس ⚠️");
+            }, 5000);
         }
 
         function onFinishSetClick() {
             clearInterval(naggingInterval); document.getElementById('tease-text').style.display = 'none';
             document.getElementById('main-btn').style.display = 'none'; showInputs(); startNagging("سجل الأرقام عشان تريح 📝⚠️");
+            document.getElementById('cancel-ex-btn').style.display = 'block';
         }
 
         function showInputs() {
-            document.getElementById('input-section').style.display = 'block'; let ex = exercises[currentIndex];
+            document.getElementById('input-section').style.display = 'block';
+            let ex = exercises[currentIndex];
+
+            // توقع الوزن من الشيت
             let lastWArray = ex.history.weight.split("-"); let lastW = lastWArray[lastWArray.length - 1];
-            document.getElementById('weight-input').value = currentExerciseData.weights.length > 0 ? currentExerciseData.weights[currentExerciseData.weights.length - 1] : (lastW==="--"?"":lastW);
-            document.getElementById('reps-input').value = ex.targetReps;
-            let maxSets = parseInt(document.getElementById('max-sets').innerText);
-            document.getElementById('extra-set-btn').style.display = (currentSet === maxSets) ? 'flex' : 'none';
+            document.getElementById('weight-input').value = currentExerciseData.weights.length > 0 ? currentExerciseData.weights[currentExerciseData.weights.length - 1] : (lastW === "--" ? "" : lastW);
+
+            // توقع العدات (من المجموعة السابقة أو من الشيت)
+            let lastRep = ex.targetReps;
+            if (currentExerciseData.reps.length > 0) {
+                lastRep = currentExerciseData.reps[currentExerciseData.reps.length - 1]; // من المجموعة اللي لسه لاعبها
+            } else {
+                let oldRepsArray = ex.history.reps.split("-");
+                let lastOldRep = oldRepsArray[oldRepsArray.length - 1].trim(); // من التمرينة اللي فاتت (الشيت)
+                if (lastOldRep && lastOldRep !== "--") {
+                    if (lastOldRep.includes("*")) {
+                        lastRep = lastOldRep.split("*")[1].trim(); // لو كانت مسجلة 3*10 هيفهمها ويجيب 10
+                    } else {
+                        lastRep = lastOldRep;
+                    }
+                }
+            }
+            document.getElementById('reps-input').value = lastRep;
         }
 
         function confirmSetAndRest() {
             clearInterval(naggingInterval);
             const w = document.getElementById('weight-input').value; const r = document.getElementById('reps-input').value;
-            if(!w || !r) { alert("أكتب الأرقام! 🤨"); return; }
+            if (!w || !r) { alert("أكتب الأرقام! 🤨"); return; }
             currentExerciseData.weights.push(w); currentExerciseData.reps.push(r);
             completedWorkoutSets++; updateRemainingTime();
             let maxSets = parseInt(document.getElementById('max-sets').innerText);
             document.getElementById('input-section').style.display = 'none';
 
-            if(currentSet < maxSets) {
-                saveLocalState(); 
+            if (currentSet < maxSets) {
+                saveLocalState();
                 startRestTimer(() => { currentSet++; document.getElementById('current-set').innerText = currentSet; saveLocalState(); resetUI(); });
             } else {
-                let maxTodayWeight = Math.max(...currentExerciseData.weights.map(Number));
-                let oldWArray = exercises[currentIndex].history.weight.split("-");
-                let oldMaxW = Math.max(...oldWArray.map(n => isNaN(n) ? 0 : Number(n)));
-                sessionSummary.push({ name: exercises[currentIndex].name, oldW: oldMaxW, newW: maxTodayWeight });
-                
-                saveLocalState(); saveExerciseToSheetBackground(); 
-                
+                saveLocalState();
                 startRestTimer(() => {
-                    if (currentIndex < exercises.length - 1) {
-                        currentIndex++; currentSet = 1; currentExerciseData = { weights: [], reps: [] }; saveLocalState(); renderExercise();
-                    } else { showFinalReport(); }
+                    showExtraSetPrompt();
                 });
             }
         }
 
         function startRestTimer(callback) {
+            currentRestCallback = callback; // حفظها عشان لو داس تخطي
             const wrapper = document.getElementById('timer-wrapper'); const inner = document.getElementById('timer-inner');
             document.getElementById('motivation-text').innerText = "خد نفسك.. وهنرجع 🔥"; document.getElementById('motivation-text').style.display = 'block';
-            wrapper.style.display = 'block'; timeLeft = 60; inner.innerText = timeLeft;
+            wrapper.style.display = 'block';
+            timeLeft = defaultRestTime;
+            inner.innerText = timeLeft;
+
             document.getElementById('timer-circle').style.background = `conic-gradient(var(--primary) 100%, #333 100%)`;
             countdown = setInterval(() => {
-                timeLeft--; inner.innerText = timeLeft; let pct = (timeLeft / 60) * 100;
+                timeLeft--; inner.innerText = timeLeft; let pct = (timeLeft / defaultRestTime) * 100;
                 document.getElementById('timer-circle').style.background = `conic-gradient(var(--primary) ${pct}%, #333 ${pct}%)`;
-                if (timeLeft <= 0) { clearInterval(countdown); finishRest(callback); }
+                if (timeLeft <= 0) { clearInterval(countdown); finishRest(currentRestCallback); }
             }, 1000);
         }
 
         function finishRest(callback) {
             document.getElementById('timer-wrapper').style.display = 'none'; document.getElementById('motivation-text').style.display = 'none';
-            playBeep(5, 300, 600); if(navigator.vibrate) navigator.vibrate([600, 200, 600, 200, 600, 200, 600, 200, 600]);
-            if(callback) callback(); startNagging("الراحة خلصت! يلا ابدأ 🚨");
+            playBeep(5, 300, 600); if (navigator.vibrate) navigator.vibrate([600, 200, 600, 200, 600, 200, 600, 200, 600]);
+            if (callback) callback();
         }
 
         function skipTimer() {
-            clearInterval(countdown); if(navigator.vibrate) navigator.vibrate(100); 
-            finishRest(() => {
-                let maxSets = parseInt(document.getElementById('max-sets').innerText);
-                if(currentSet < maxSets) { currentSet++; document.getElementById('current-set').innerText = currentSet; saveLocalState(); resetUI(); } 
-                else {
-                    if (currentIndex < exercises.length - 1) { currentIndex++; currentSet = 1; currentExerciseData = { weights: [], reps: [] }; saveLocalState(); renderExercise(); } 
-                    else { showFinalReport(); }
-                }
-            });
+            clearInterval(countdown); if (navigator.vibrate) navigator.vibrate(100);
+            finishRest(currentRestCallback); // تنفيذ الدالة المحفوظة مباشرة
+        }
+
+        function showExtraSetPrompt() {
+            document.getElementById('timer-wrapper').style.display = 'none';
+            document.getElementById('motivation-text').style.display = 'none';
+            document.getElementById('tease-text').style.display = 'none';
+            document.getElementById('input-section').style.display = 'none';
+            document.getElementById('cancel-ex-btn').style.display = 'none';
+            document.getElementById('main-btn').style.display = 'none';
+
+            document.getElementById('extra-set-prompt').style.display = 'block';
+            startNagging("ها يا وحش هندخل ع التمرينة اللي بعدها؟ 🚨");
+        }
+
+        function proceedToNextExercise() {
+            clearInterval(naggingInterval);
+            document.getElementById('extra-set-prompt').style.display = 'none';
+
+            exercises[currentIndex].status = 'completed';
+            let maxTodayWeight = Math.max(...currentExerciseData.weights.map(Number));
+            let oldWArray = exercises[currentIndex].history.weight.split("-");
+            let oldMaxW = Math.max(...oldWArray.map(n => isNaN(n) ? 0 : Number(n)));
+            sessionSummary.push({ name: exercises[currentIndex].name, oldW: oldMaxW, newW: maxTodayWeight });
+
+            saveLocalState(); saveExerciseToSheetBackground();
+
+            let nextIndex = exercises.findIndex(ex => ex.status === 'pending');
+            if (nextIndex !== -1) {
+                currentIndex = nextIndex; currentSet = 1; currentExerciseData = { weights: [], reps: [] }; saveLocalState(); renderExercise();
+            } else {
+                showFinalReport();
+            }
         }
 
         function addExtraSet() {
+            clearInterval(naggingInterval);
+            document.getElementById('extra-set-prompt').style.display = 'none';
             let maxSetsEl = document.getElementById('max-sets'); maxSetsEl.innerText = parseInt(maxSetsEl.innerText) + 1;
             exercises[currentIndex].targetSets = parseInt(maxSetsEl.innerText); totalWorkoutSets++; updateRemainingTime();
-            document.getElementById('extra-set-btn').style.display = 'none'; saveLocalState();
+
+            currentSet++; document.getElementById('current-set').innerText = currentSet;
+            saveLocalState(); resetUI();
         }
 
         function showFinalReport() {
             clearLocalState(); document.getElementById('progress-bar').style.width = '100%';
-            document.getElementById('workout-card').classList.add('hide'); document.getElementById('summary-card').classList.remove('hide'); 
-            
+            document.getElementById('workout-card').classList.add('hide');
+            document.getElementById('exercise-timeline').classList.add('hide');
+            document.getElementById('summary-card').classList.remove('hide');
+
             let improvedCount = 0; const statsContainer = document.getElementById('summary-stats'); statsContainer.innerHTML = '';
-            
+
             sessionSummary.forEach(item => {
                 let trendIcon = "➖"; let trendClass = "trend-flat";
-                if(item.newW > item.oldW && item.oldW > 0) { trendIcon = "📈"; trendClass = "trend-up"; improvedCount++; }
+                if (item.newW > item.oldW && item.oldW > 0) { trendIcon = "📈"; trendClass = "trend-up"; improvedCount++; }
                 statsContainer.innerHTML += `
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #2c2c35; padding: 8px 0; font-size: 13px; align-items: center;">
                         <span style="color: #fff; font-weight: bold; width: 40%; font-size: 12px; text-align:right;">${item.name}</span>
                         <span style="color: var(--text-muted); font-size: 12px;"> ${item.oldW === 0 ? '--' : item.oldW} ⬅️ <span class="${trendClass}">${item.newW} كجم ${trendIcon}</span></span>
                     </div>`;
             });
-            
+
             let rating = 7 + (improvedCount > 0 ? (improvedCount >= 3 ? 3 : 2) : 1); if (rating > 10) rating = 10;
             document.getElementById('final-rating').innerText = rating + "/10";
             document.getElementById('rating-msg').innerText = rating >= 9 ? "يا وحش! كسرت أرقامك 🔥" : "عاش جداً، حافظت على مستواك 👏";
@@ -515,17 +1191,21 @@
 
         async function saveExerciseToSheetBackground() {
             let finalReps = currentExerciseData.reps.every(r => r === currentExerciseData.reps[0]) ? `${currentExerciseData.reps.length}*${currentExerciseData.reps[0]}` : currentExerciseData.reps.join("-");
-            let finalWeights = currentExerciseData.weights.filter((w, i) => i === 0 || w !== currentExerciseData.weights[i-1]).join("-");
-            try { await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ date: getTodayDate(), category: activeCategory, exerciseName: exercises[currentIndex].name, weight: finalWeights, reps: finalReps }) }); } catch (error) {}
+            let finalWeights = currentExerciseData.weights.filter((w, i) => i === 0 || w !== currentExerciseData.weights[i - 1]).join("-");
+            try { await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ date: getTodayDate(), category: activeCategory, exerciseName: exercises[currentIndex].name, weight: finalWeights, reps: finalReps }) }); } catch (error) { }
         }
 
         function resetUI() {
             clearInterval(countdown); clearInterval(naggingInterval);
             document.getElementById('timer-wrapper').style.display = 'none'; document.getElementById('motivation-text').style.display = 'none';
             document.getElementById('tease-text').style.display = 'none'; document.getElementById('input-section').style.display = 'none';
+            document.getElementById('extra-set-prompt').style.display = 'none';
+            document.getElementById('cancel-ex-btn').style.display = 'block';
+
             let btn = document.getElementById('main-btn'); btn.style.display = 'block'; btn.innerHTML = "ابدأ المجموعة 💪"; btn.className = "action-btn btn-primary"; btn.onclick = startSetPlaying;
             startNagging("أنت نمت ولا إيه؟ يلا! 🚨");
         }
     </script>
 </body>
+
 </html>
