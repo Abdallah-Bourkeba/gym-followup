@@ -682,6 +682,12 @@
         <button id="sound-toggle-btn" type="button" class="action-btn btn-secondary"
           style="width: auto; padding: 8px 20px; font-size: 14px; margin: 0;" onclick="toggleSound()">🔊 شغال</button>
       </div>
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-top: 1px dashed #444; padding-top: 15px;">
+        <label style="color: var(--text-muted); font-size: 14px;">البحث المطول في جوجل 🔍:</label>
+        <button id="search-toggle-btn" type="button" class="action-btn btn-secondary"
+          style="width: auto; padding: 8px 20px; font-size: 14px; margin: 0;" onclick="toggleSearch()">🔍 شغال</button>
+      </div>
       <button class="action-btn btn-success" onclick="saveSettings()">حفظ التعديلات ✅</button>
       <button class="action-btn btn-secondary" onclick="closeSettings()">إلغاء</button>
     </div>
@@ -786,7 +792,12 @@
 
     <div class="main-card" id="workout-card">
       <div class="category-title" id="exercise-category">--</div>
-      <h1 id="exercise-title" class="exercise-title">اسم التمرين</h1>
+
+      <div id="exercise-english-title"
+        style="color: #a0a0a5; font-size: 15px; margin-bottom: 5px; font-weight: bold; cursor: pointer; user-select: none; transition: 0.3s; display: none;">
+      </div>
+
+      <h1 id="exercise-title" class="exercise-title" style="cursor: pointer; user-select: none;">اسم التمرين</h1>
 
       <div class="exercise-info">
         <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
@@ -861,7 +872,7 @@
   </div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzb26I6gQPvIfiYHN2oKrsZKGbQLCeQTaweORc0BQftcL5Vl2Q8LULHDFfXCrj0AwUf/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzzTBYoMPNyPuF4qu83IlI3d6hf0_eIxA0aiwrW0xmJLqUpiWkFUNiUH3ARqgKrU5JI/exec";
 
     const motivations = ["شايفك 👀.. دغدغ الحديد 💥", "عاش يا دبابة! 🦍", "هات آخرك، الوجع ده هو النتيجة 💯"];
 
@@ -884,6 +895,8 @@
     let expectedRestEndTime = null;
 
     let isSoundEnabled = localStorage.getItem('gymSoundEnabled') === 'false' ? false : true;
+    let isSearchEnabled = localStorage.getItem('gymSearchEnabled') === 'false' ? false : true;
+    let pressTimer;
 
     const getTodayDate = () => {
       const today = new Date(); const offset = today.getTimezoneOffset();
@@ -948,6 +961,58 @@
       let newVal = document.getElementById('rest-time-input').value;
       if (newVal && newVal >= 10) { defaultRestTime = parseInt(newVal); localStorage.setItem('gymRestTime', defaultRestTime); closeSettings(); }
     }
+    function toggleSearch() {
+      isSearchEnabled = !isSearchEnabled;
+      localStorage.setItem('gymSearchEnabled', isSearchEnabled);
+      updateSearchBtnUI();
+    }
+
+    function updateSearchBtnUI() {
+      let btn = document.getElementById('search-toggle-btn');
+      if (btn) {
+        btn.innerHTML = isSearchEnabled ? "🔍 شغال" : "❌ مقفول";
+        btn.style.color = isSearchEnabled ? "#4caf50" : "#f44336";
+        btn.style.borderColor = isSearchEnabled ? "#4caf50" : "#f44336";
+      }
+    }
+
+    // دالة الاهتزاز والبحث عند الضغط المطول
+    function setupLongPress() {
+      const enTitle = document.getElementById('exercise-english-title');
+      const arTitle = document.getElementById('exercise-title');
+
+      const startPress = (e) => {
+        if (!isSearchEnabled) return;
+        const ex = exercises[currentIndex];
+        if (!ex || !ex.englishName) return;
+
+        pressTimer = setTimeout(() => {
+          if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // اهتزاز مميز
+          enTitle.style.color = "var(--primary)"; // تغيير لونه لحظياً عشان تحس بالتفاعل
+
+          if (confirm(`عايز تبحث في جوجل عن التمرينة دي عشان تراجع الأداء؟\n🔍 ${ex.englishName}`)) {
+            // هيفتح تاب جديدة فيها بحث جوجل عن التمرينة
+            window.open("https://www.google.com/search?q=" + encodeURIComponent(ex.englishName + " exercise form tutorial"), "_blank");
+          }
+          enTitle.style.color = "#a0a0a5";
+        }, 600); // الضغطة المطولة هنا مدتها 600 مللي ثانية
+      };
+
+      const cancelPress = () => {
+        clearTimeout(pressTimer);
+        enTitle.style.color = "#a0a0a5";
+      };
+
+      // ربط الايفنتس سواء بالموبايل أو الماوس
+      [enTitle, arTitle].forEach(el => {
+        el.addEventListener("touchstart", startPress, { passive: true });
+        el.addEventListener("touchend", cancelPress);
+        el.addEventListener("touchmove", cancelPress);
+        el.addEventListener("mousedown", startPress);
+        el.addEventListener("mouseup", cancelPress);
+        el.addEventListener("mouseleave", cancelPress);
+      });
+    }
 
 
     function toggleSound() {
@@ -989,6 +1054,8 @@
       try {
         const savedStateStr = localStorage.getItem('gymPartnerState');
         let hasSavedState = false;
+        updateSearchBtnUI();
+        setupLongPress();
 
         if (savedStateStr) {
           const savedState = JSON.parse(savedStateStr);
@@ -1436,6 +1503,8 @@
 
       document.getElementById('exercise-category').innerText = "📌 " + activeCategory;
       document.getElementById('exercise-title').innerText = ex.name;
+      document.getElementById('exercise-english-title').innerText = ex.englishName || "";
+      document.getElementById('exercise-english-title').style.display = ex.englishName ? 'block' : 'none';
 
       let completedExCount = exercises.filter(e => e.status === 'completed' || e.status === 'skipped').length;
       document.getElementById('current-index').innerText = (completedExCount + 1 > exercises.length) ? exercises.length : (completedExCount + 1);
